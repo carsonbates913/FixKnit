@@ -5,8 +5,6 @@ import RootLayout from './layouts/RootLayout'
 import LandingPage from './pages/LandingPage'
 import ExplorePage from './pages/ExplorePage'
 import RepairPage from './pages/RepairPage'
-import ChatPage from './pages/ChatPage'
-import FAQPage from './pages/FAQPage'
 
 function App() {
 
@@ -27,14 +25,6 @@ function App() {
           path: '/repair',
           element: <RepairPage />,
         },
-        {
-          path: '/chat',
-          element: <ChatPage />,
-        },
-        {
-          path: '/FAQ',
-          element: <FAQPage />,
-        }
       ]
     }
   ])

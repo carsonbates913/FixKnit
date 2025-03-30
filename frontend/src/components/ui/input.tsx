@@ -2,10 +2,11 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-function Input({ placeholder, className, type, ...props }: React.ComponentProps<"input">) {
+function Input({ placeholder, register, id, className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <input
       type={type}
+      {...(register ? register(id) : {})} // Use register if provided
       data-slot="input"
       placeholder={placeholder}
       className={cn(

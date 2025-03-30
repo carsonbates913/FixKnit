@@ -14,11 +14,25 @@
   font-size: 20px;
 }
 
+.explorer-page form {
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 20px;
+  width: 50vw;
+}
+
 .explorer-page h1 {
   width: 550px;
   font-size: 50px;
   text-align: center;
   line-height: 1;
+}
+
+.explorer-page h3 {
+  border-bottom: 1px solid black;
 }
 
 .explorer-page .img-container {
@@ -33,9 +47,16 @@
 }
 
 .card-container {
-  margin-top: 100px;
+  padding: 30px;
+  margin-top: 50px;
   border-radius: 16px;
   background-color: var(--gray-light);
   width: 100%;
-  height: 800px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.card-container .card {
+  max-height: 300px;
 }
