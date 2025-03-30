@@ -1,0 +1,41 @@
+.explorer-page {
+  padding: 0px 90px;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+
+}
+
+.explorer-page .search-bar {
+  height: 50px;
+  width: 100%;
+  background-color: var(--gray-light);
+  margin: 30px 0px;
+  font-size: 20px;
+}
+
+.explorer-page h1 {
+  width: 550px;
+  font-size: 50px;
+  text-align: center;
+  line-height: 1;
+}
+
+.explorer-page .img-container {
+  width: 200px;
+  height: 200px;
+}
+
+.explorer-page .img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-container {
+  margin-top: 100px;
+  border-radius: 16px;
+  background-color: var(--gray-light);
+  width: 100%;
+  height: 800px;
+}

@@ -4,8 +4,8 @@ import './ChatPage.css';
 
 export default function ChatPage() {
   return (
-    <div>
+    <main>
       <h1>Chat Page</h1>
-    </div>
+    </main>
   )
 }
