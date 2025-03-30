@@ -173,49 +173,23 @@ formData.append("file", selectedFile);
             <h1>Helpful Links</h1>
             <div className="links-container">
               <Card className="card">
-                <CardHeader>
-                  <CardTitle>Card Title</CardTitle>
-                  <CardDescription>Card Description</CardDescription>
-                </CardHeader>
                 <CardContent>
                   <p>Card Content</p>
                 </CardContent>
-                <CardFooter>
-                  <p>Card Footer</p>
-                </CardFooter>
               </Card>
               <Card className="card">
-                <CardHeader>
-                  <CardTitle>Card Title</CardTitle>
-                  <CardDescription>Card Description</CardDescription>
-                </CardHeader>
                 <CardContent>
                   <p>Card Content</p>
                 </CardContent>
-                <CardFooter>
-                  <p>Card Footer</p>
-                </CardFooter>
               </Card>
               <Card className="card">
-                <CardHeader>
-                  <CardTitle>Card Title</CardTitle>
-                  <CardDescription>Card Description</CardDescription>
-                </CardHeader>
                 <CardContent>
                   <p>Card Content</p>
                 </CardContent>
-                <CardFooter>
-                  <p>Card Footer</p>
-                </CardFooter>
               </Card>
             </div>
           </section>
-          <section className="saved-section">
-            <h1>Amount Saved</h1>
-          </section>
-          <section className="inspiration-section"> 
-            <h1>Inspiration</h1>
-          </section>
+
         </main>
       )
     }
