@@ -1,60 +1,27 @@
+import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group'
+import type { ComponentProps } from 'react'
 
-import * as React from "react"
-import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group"
-import { type VariantProps } from "class-variance-authority"
- 
-import { cn } from "@/lib/utils"
-import { toggleVariants } from "@/components/ui/toggle"
- 
-const ToggleGroupContext = React.createContext<
-  VariantProps<typeof toggleVariants>
->({
-  size: "default",
-  variant: "default",
-})
- 
-const ToggleGroup = React.forwardRef<
-  React.ElementRef<typeof ToggleGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &
-    VariantProps<typeof toggleVariants>
->(({ className, variant, size, children, ...props }, ref) => (
-  <ToggleGroupPrimitive.Root
-    ref={ref}
-    className={cn("flex items-center justify-center gap-1", className)}
-    {...props}
-  >
-    <ToggleGroupContext.Provider value={{ variant, size }}>
-      {children}
-    </ToggleGroupContext.Provider>
-  </ToggleGroupPrimitive.Root>
-))
- 
-ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName
- 
-const ToggleGroupItem = React.forwardRef<
-  React.ElementRef<typeof ToggleGroupPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Item> &
-    VariantProps<typeof toggleVariants>
->(({ className, children, variant, size, ...props }, ref) => {
-  const context = React.useContext(ToggleGroupContext)
- 
+import { cn } from '@/lib/utils'
+
+/** A row of filter chips. Selected chips invert to ink on paper. */
+function ToggleGroup({ className, ...props }: ComponentProps<typeof ToggleGroupPrimitive.Root>) {
+  return (
+    <ToggleGroupPrimitive.Root data-slot="toggle-group" className={cn('flex flex-wrap gap-2', className)} {...props} />
+  )
+}
+
+function ToggleGroupItem({ className, ...props }: ComponentProps<typeof ToggleGroupPrimitive.Item>) {
   return (
     <ToggleGroupPrimitive.Item
-      ref={ref}
+      data-slot="toggle-group-item"
       className={cn(
-        toggleVariants({
-          variant: context.variant || variant,
-          size: context.size || size,
-        }),
-        className
+        'inline-flex h-8 items-center gap-2 rounded-md border border-line-strong bg-surface px-3 text-[13.5px] font-medium transition-colors hover:border-primary',
+        'data-[state=on]:border-foreground data-[state=on]:bg-foreground data-[state=on]:text-background',
+        className,
       )}
       {...props}
-    >
-      {children}
-    </ToggleGroupPrimitive.Item>
+    />
   )
-})
- 
-ToggleGroupItem.displayName = ToggleGroupPrimitive.Item.displayName
- 
+}
+
 export { ToggleGroup, ToggleGroupItem }

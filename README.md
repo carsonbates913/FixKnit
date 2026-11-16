@@ -36,6 +36,18 @@ backend/   FastAPI + Pydantic
 
 Interactive docs: http://localhost:8000/docs
 
+## Design system: Stitch Precision
+
+A Swiss, grid-led look: **Hanken Grotesk** for type, **JetBrains Mono** for labels and data, signal green
+with **cobalt** as the second signal, 1px edges, 3–12px radii and a 4px spacing grid. Light and dark themes follow
+the OS, with a toggle in the nav.
+
+- Tokens: `frontend/src/styles/index.css` (CSS variables mapped into Tailwind: `bg-surface`, `text-primary-ink`,
+  `bg-signal-soft`, …) plus the `sheen`, `grid-paper` and `eyebrow` utilities.
+- Brand: `components/brand/Logo.tsx` (eight knit stitches forming an F; the cobalt stitch is the repair) and
+  `components/brand/StitchGrid.tsx` (the stitch-grid motif).
+- The green yarn ball (`assets/green-yarn.webp`) is the only illustration, used for the hero and loading states.
+
 ## Getting started
 
 Requirements: [uv](https://docs.astral.sh/uv/), Node 24+. Alternatively, use Docker.
