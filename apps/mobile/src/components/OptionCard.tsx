@@ -1,12 +1,15 @@
 import { Check, Clock } from 'lucide-react-native'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { Image } from 'expo-image'
+import { StyleSheet, View } from 'react-native'
 
 import type { RepairOption } from '@/api/schema'
 import { minutes, titleCase } from '@/lib/format'
+import { techniqueIcon } from '@/lib/icons'
 import { useTheme } from '@/theme/ThemeProvider'
 import { radius } from '@/theme/tokens'
 
 import { Badge } from './Badge'
+import { PressScale } from './Motion'
 import { Text } from './Text'
 
 const DIFFICULTY = ['Easy', 'Moderate', 'Advanced']
@@ -14,8 +17,10 @@ const DIFFICULTY = ['Easy', 'Moderate', 'Advanced']
 export function OptionCard({ option, selected, onPress, rank }: { option: RepairOption; selected: boolean; onPress: () => void; rank: number }) {
   const { colors } = useTheme()
   return (
-    <Pressable
+    <PressScale
       accessibilityRole="radio"
+      haptic
+      scaleTo={0.98}
       accessibilityState={{ checked: selected }}
       onPress={onPress}
       style={[styles.card, { borderColor: selected ? colors.primary : colors.line, backgroundColor: selected ? colors.primarySoft : colors.surface }]}
@@ -26,7 +31,10 @@ export function OptionCard({ option, selected, onPress, rank }: { option: Repair
           {selected && <Check size={13} color={colors.onPrimary} strokeWidth={3} />}
         </View>
       </View>
-      <Text variant="h2">{option.title}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        {option.technique && <Image source={techniqueIcon[option.technique]} style={{ width: 40, height: 40 }} contentFit="contain" />}
+        <Text variant="h2" style={{ flex: 1 }}>{option.title}</Text>
+      </View>
       <Text variant="small" tone="muted">{option.summary}</Text>
       <View style={styles.meta}>
         <Badge label={option.visibility === 'visible' ? 'Visible mend' : 'Invisible mend'} tone={option.visibility === 'visible' ? 'signal' : 'neutral'} />
@@ -34,7 +42,7 @@ export function OptionCard({ option, selected, onPress, rank }: { option: Repair
         <Badge label={DIFFICULTY[option.difficulty - 1] ?? 'Moderate'} tone="neutral" />
         <Badge label={minutes(option.minutes)} tone="neutral" icon={Clock} />
       </View>
-    </Pressable>
+    </PressScale>
   )
 }
 

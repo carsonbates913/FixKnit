@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import { useDeleteAccount } from '@/api/hooks'
 import { Button } from '@/components/Button'
 import { Chip } from '@/components/Chip'
+import { Appear } from '@/components/Motion'
 import { Notice } from '@/components/Notice'
 import { Screen } from '@/components/Screen'
 import { Eyebrow, Text } from '@/components/Text'
@@ -70,9 +71,9 @@ export default function SettingsScreen() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <View style={{ gap: 12 }}>
+    <Appear style={{ gap: 12 }}>
       <Eyebrow>{title}</Eyebrow>
       {children}
-    </View>
+    </Appear>
   )
 }

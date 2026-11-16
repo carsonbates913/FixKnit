@@ -7,10 +7,12 @@ import { Button } from '@/components/Button'
 import { Chip } from '@/components/Chip'
 import { Field } from '@/components/Field'
 import { Logo } from '@/components/Logo'
+import { Appear } from '@/components/Motion'
 import { Screen } from '@/components/Screen'
 import { Eyebrow, Text } from '@/components/Text'
 import { useAuth } from '@/lib/auth'
 import { titleCase } from '@/lib/format'
+import { techniqueIcon } from '@/lib/icons'
 
 function suggestHandle(name: string): string {
   return name.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 20)
@@ -35,11 +37,11 @@ export default function Onboarding() {
   return (
     <Screen edges={['top', 'bottom']}>
       <Logo />
-      <View style={{ gap: 8 }}>
+      <Appear style={{ gap: 8 }}>
         <Eyebrow>Welcome</Eyebrow>
         <Text variant="h1">What should we call you?</Text>
         <Text variant="body" tone="muted">This is how other makers will see your posts.</Text>
-      </View>
+      </Appear>
 
       <Field label="Display name" placeholder="Sam Rivera" value={name} onChangeText={setName} autoFocus maxLength={40} returnKeyType="next" />
       <Field
@@ -65,7 +67,7 @@ export default function Onboarding() {
         <Text variant="label">What do you make? (optional)</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {techniqueValues.map((t) => (
-            <Chip key={t} label={titleCase(t)} selected={techniques.includes(t)} onPress={() => toggle(t)} />
+            <Chip key={t} icon={techniqueIcon[t]} label={titleCase(t)} selected={techniques.includes(t)} onPress={() => toggle(t)} />
           ))}
         </View>
       </View>

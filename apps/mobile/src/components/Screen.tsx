@@ -21,6 +21,7 @@ export function Screen({ children, scroll = true, edges = ['top'], contentStyle,
     <SafeAreaView edges={edges} style={[styles.root, { backgroundColor: colors.bg }]}>
       {scroll ? (
         <ScrollView
+          style={styles.scroller}
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
           refreshControl={onRefresh ? <RefreshControl refreshing={Boolean(refreshing)} onRefresh={onRefresh} tintColor={colors.primary} /> : undefined}
@@ -35,7 +36,9 @@ export function Screen({ children, scroll = true, edges = ['top'], contentStyle,
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
+  root: { flex: 1, minHeight: 0 },
+  // minHeight 0 lets the scroller shrink to the screen on web (flex items default to min-height: auto).
+  scroller: { flex: 1, minHeight: 0 },
   scroll: { flexGrow: 1 },
   column: { width: '100%', maxWidth: 560, alignSelf: 'center', paddingHorizontal: 18, paddingVertical: 20, gap: 20, flexGrow: 1 },
 })

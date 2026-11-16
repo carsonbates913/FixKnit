@@ -14,7 +14,8 @@ import { PhotoSourceButtons } from '@/components/PhotoSourceButtons'
 import { Screen } from '@/components/Screen'
 import { StitchGrid } from '@/components/StitchGrid'
 import { Eyebrow, Text } from '@/components/Text'
-import { YarnLoader } from '@/components/YarnLoader'
+import { Appear, FadeInView } from '@/components/Motion'
+import { DiagnosisSkeleton } from '@/components/Skeleton'
 import { mediaUrl } from '@/lib/env'
 import { percent, titleCase } from '@/lib/format'
 import { pickPhotos, type PhotoSource } from '@/lib/photos'
@@ -60,7 +61,10 @@ export default function Fix() {
       )}
 
       {diagnose.isPending ? (
-        <YarnLoader label="Analysing your garment…" />
+        <FadeInView style={{ gap: 14 }}>
+          <Text variant="label" center>Analysing your garment…</Text>
+          <DiagnosisSkeleton />
+        </FadeInView>
       ) : (
         <>
           {diagnose.isError && <Notice title="Couldn’t analyse that photo">{diagnose.error.message}</Notice>}
@@ -86,7 +90,7 @@ function DiagnosisView({ diagnosis, onRetake }: { diagnosis: DiagnosisOut; onRet
     <Screen edges={['bottom']}>
       <Image source={{ uri: mediaUrl(diagnosis.photo_url) }} style={styles.preview} contentFit="cover" />
 
-      <View style={[styles.report, { borderColor: colors.line, backgroundColor: colors.surface }]}>
+      <Appear style={[styles.report, { borderColor: colors.line, backgroundColor: colors.surface }]}>
         <Eyebrow>Diagnosis</Eyebrow>
         <Row label="Item">
           {diagnosis.garment ? <Badge label={titleCase(diagnosis.garment)} detail={percent(diagnosis.garment_confidence)} /> : <Text variant="small" tone="muted">Not recognised</Text>}
@@ -103,7 +107,7 @@ function DiagnosisView({ diagnosis, onRetake }: { diagnosis: DiagnosisOut; onRet
             ))
           )}
         </Row>
-      </View>
+      </Appear>
 
       {diagnosis.notes ? <Notice tone="signal" title="Note">{diagnosis.notes}</Notice> : null}
 
@@ -112,7 +116,9 @@ function DiagnosisView({ diagnosis, onRetake }: { diagnosis: DiagnosisOut; onRet
         <Text variant="small" tone="muted">Ranked for this damage. You can switch techniques later.</Text>
       </View>
       {diagnosis.options.map((option, i) => (
-        <OptionCard key={option.id} option={option} rank={i + 1} selected={selected === option.id} onPress={() => setSelected(option.id)} />
+        <Appear key={option.id} index={i + 1}>
+          <OptionCard option={option} rank={i + 1} selected={selected === option.id} onPress={() => setSelected(option.id)} />
+        </Appear>
       ))}
 
       {start.isError && <Notice title="Couldn’t start the project">{start.error.message}</Notice>}

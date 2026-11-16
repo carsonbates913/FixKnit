@@ -1,7 +1,8 @@
 import { Image } from 'expo-image'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { Check, Share2 } from 'lucide-react-native'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring } from 'react-native-reanimated'
 import { Pressable, StyleSheet, View } from 'react-native'
 
 import { useProject, useUpdateProject, useUploadPhoto } from '@/api/hooks'
@@ -14,11 +15,14 @@ import { Notice } from '@/components/Notice'
 import { PhotoSourceButtons } from '@/components/PhotoSourceButtons'
 import { Screen } from '@/components/Screen'
 import { Eyebrow, Text } from '@/components/Text'
+import { Appear } from '@/components/Motion'
+import { ProjectSkeleton } from '@/components/Skeleton'
 import { YarnLoader } from '@/components/YarnLoader'
 import { mediaUrl } from '@/lib/env'
 import { minutes, timeAgo, titleCase } from '@/lib/format'
 import { pickPhotos, type PhotoSource } from '@/lib/photos'
 import { PROJECT_STATUS } from '@/lib/status'
+import { popSpring } from '@/theme/motion'
 import { useTheme } from '@/theme/ThemeProvider'
 import { radius } from '@/theme/tokens'
 
@@ -29,7 +33,7 @@ export default function ProjectScreen() {
   if (project.isPending) {
     return (
       <Screen edges={['bottom']}>
-        <YarnLoader label="Loading project…" />
+        <ProjectSkeleton />
       </Screen>
     )
   }
@@ -83,7 +87,7 @@ function ProjectView({ project }: { project: ProjectOut }) {
   return (
     <Screen edges={['bottom']}>
       <Stack.Screen options={{ title: status.label }} />
-      <View style={{ gap: 8 }}>
+      <Appear style={{ gap: 8 }}>
         <Eyebrow>{`Project · ${status.label}`}</Eyebrow>
         <Text variant="h1">{project.title}</Text>
         <View style={styles.badges}>
@@ -91,7 +95,7 @@ function ProjectView({ project }: { project: ProjectOut }) {
           {project.material && <Badge label={titleCase(project.material)} tone="neutral" />}
           <Badge label={minutes(project.plan.minutes)} tone="neutral" />
         </View>
-      </View>
+      </Appear>
 
       {project.before_photo && after?.photo ? (
         <BeforeAfter before={project.before_photo.url} after={after.photo.url} aspectRatio={4 / 3} />
@@ -99,7 +103,7 @@ function ProjectView({ project }: { project: ProjectOut }) {
         <Image source={{ uri: mediaUrl(project.before_photo.url) }} style={styles.photo} contentFit="cover" />
       ) : null}
 
-      <View style={[styles.panel, { borderColor: colors.line, backgroundColor: colors.surface }]}>
+      <Appear index={1} style={[styles.panel, { borderColor: colors.line, backgroundColor: colors.surface }]}>
         <View style={styles.spread}>
           <Text variant="label">Steps</Text>
           <Text variant="data" tone="muted">
@@ -116,14 +120,7 @@ function ProjectView({ project }: { project: ProjectOut }) {
               onPress={() => toggleStep(i)}
               style={styles.step}
             >
-              <View
-                style={[
-                  styles.box,
-                  { borderColor: done ? colors.primary : colors.lineStrong, backgroundColor: done ? colors.primary : 'transparent' },
-                ]}
-              >
-                {done && <Check size={13} color={colors.onPrimary} strokeWidth={3} />}
-              </View>
+              <CheckBox done={done} />
               <Text
                 variant="body"
                 style={{ flex: 1, color: done ? colors.muted : colors.fg, textDecorationLine: done ? 'line-through' : 'none' }}
@@ -139,13 +136,13 @@ function ProjectView({ project }: { project: ProjectOut }) {
         <Text variant="small" tone="muted">
           {project.plan.materials.join(' · ')}
         </Text>
-      </View>
+      </Appear>
 
       {project.updates.length > 0 && (
         <View style={{ gap: 10 }}>
           <Text variant="label">Timeline</Text>
-          {project.updates.map((u) => (
-            <View key={u.id} style={[styles.update, { borderColor: colors.line }]}>
+          {project.updates.map((u, i) => (
+            <Appear key={u.id} index={i} style={[styles.update, { borderColor: colors.line }]}>
               {u.photo && <Image source={{ uri: mediaUrl(u.photo.url) }} style={styles.thumb} contentFit="cover" />}
               <View style={{ flex: 1, gap: 2 }}>
                 <Text variant="smallMedium">{u.kind === 'after' ? 'Finished' : 'Progress'}</Text>
@@ -158,7 +155,7 @@ function ProjectView({ project }: { project: ProjectOut }) {
                   {timeAgo(u.created_at)}
                 </Text>
               </View>
-            </View>
+            </Appear>
           ))}
         </View>
       )}
@@ -205,6 +202,27 @@ function ProjectView({ project }: { project: ProjectOut }) {
         </View>
       )}
     </Screen>
+  )
+}
+
+/** Checkbox that pops when ticked. */
+function CheckBox({ done }: { done: boolean }) {
+  const { colors } = useTheme()
+  const scale = useSharedValue(1)
+  useEffect(() => {
+    if (done) scale.value = withSequence(withSpring(1.25, popSpring), withSpring(1, popSpring))
+  }, [done, scale])
+  const animated = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }))
+  return (
+    <Animated.View
+      style={[
+        styles.box,
+        { borderColor: done ? colors.primary : colors.lineStrong, backgroundColor: done ? colors.primary : 'transparent' },
+        animated,
+      ]}
+    >
+      {done && <Check size={13} color={colors.onPrimary} strokeWidth={3} />}
+    </Animated.View>
   )
 }
 

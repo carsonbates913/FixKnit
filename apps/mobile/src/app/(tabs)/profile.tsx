@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { Button } from '@/components/Button'
 import { FeedList } from '@/components/FeedList'
+import { Appear } from '@/components/Motion'
 import { ProfileHeader } from '@/components/ProfileHeader'
 import { Text } from '@/components/Text'
 import { useAuth } from '@/lib/auth'
@@ -21,10 +22,12 @@ export default function MyProfile() {
       <FeedList
         author={profile.handle}
         header={
-          <ProfileHeader
-            profile={profile}
-            action={<Button label="Settings" icon={Settings} variant="secondary" size="sm" onPress={() => router.push('/settings')} />}
-          />
+          <Appear>
+            <ProfileHeader
+              profile={profile}
+              action={<Button label="Settings" icon={Settings} variant="secondary" size="sm" onPress={() => router.push('/settings')} />}
+            />
+          </Appear>
         }
         empty={
           <View style={{ gap: 12, paddingVertical: 24, alignItems: 'center' }}>

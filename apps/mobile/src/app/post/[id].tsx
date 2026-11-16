@@ -10,7 +10,8 @@ import { Notice } from '@/components/Notice'
 import { PostCard } from '@/components/PostCard'
 import { Screen } from '@/components/Screen'
 import { Text } from '@/components/Text'
-import { YarnLoader } from '@/components/YarnLoader'
+import { FadeInView } from '@/components/Motion'
+import { PostCardSkeleton } from '@/components/Skeleton'
 import { useAuth } from '@/lib/auth'
 import { useQueryClient } from '@tanstack/react-query'
 
@@ -32,11 +33,13 @@ export default function PostScreen() {
 
   return (
     <Screen edges={['bottom']}>
-      {post.isPending && <YarnLoader label="Loading post…" />}
+      {post.isPending && <PostCardSkeleton />}
       {post.isError && <Notice title="Couldn’t load this post">{post.error.message}</Notice>}
       {post.data && (
         <>
-          <PostCard post={post.data} linkToDetail={false} />
+          <FadeInView>
+            <PostCard post={post.data} linkToDetail={false} />
+          </FadeInView>
           {post.data.author.handle === me?.profile?.handle &&
             (confirming ? (
               <View style={{ gap: 10 }}>

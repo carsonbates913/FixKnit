@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native'
 
 import { Button } from '@/components/Button'
 import { Logo } from '@/components/Logo'
+import { Appear } from '@/components/Motion'
 import { Notice } from '@/components/Notice'
 import { Screen } from '@/components/Screen'
 import { StitchGrid } from '@/components/StitchGrid'
@@ -30,25 +31,27 @@ export default function Welcome() {
 
   return (
     <Screen edges={['top', 'bottom']} contentStyle={{ justifyContent: 'space-between' }}>
-      <Logo />
-      <View style={styles.art}>
+      <Appear>
+        <Logo />
+      </Appear>
+      <Appear index={1} style={styles.art}>
         <StitchGrid style={StyleSheet.absoluteFill} />
         <Image source={yarn} style={styles.yarn} contentFit="contain" accessibilityLabel="A green ball of yarn" />
-      </View>
-      <View style={{ gap: 14 }}>
+      </Appear>
+      <Appear index={2} style={{ gap: 14 }}>
         <Eyebrow>Clothing repair, measured</Eyebrow>
         <Text variant="display">Revive, repair, reimagine.</Text>
         <Text variant="body" tone="muted">
           Snap a damaged garment to get a repair plan, then share what you make with everyone here.
         </Text>
-      </View>
-      <View style={{ gap: 12 }}>
+      </Appear>
+      <Appear index={3} style={{ gap: 12 }}>
         {error && <Notice title="Couldn’t start a session">{error}</Notice>}
         <Button label="Continue as guest" size="lg" block loading={busy} onPress={start} />
         <Text variant="small" tone="muted" center>
           No email needed. Pick a display name on the next screen.
         </Text>
-      </View>
+      </Appear>
     </Screen>
   )
 }

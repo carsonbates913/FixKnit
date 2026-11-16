@@ -15,6 +15,7 @@ import { PhotoSourceButtons } from '@/components/PhotoSourceButtons'
 import { Screen } from '@/components/Screen'
 import { Eyebrow, Text } from '@/components/Text'
 import { titleCase } from '@/lib/format'
+import { techniqueIcon } from '@/lib/icons'
 import { pickPhotos, type PhotoSource } from '@/lib/photos'
 import { radius } from '@/theme/tokens'
 
@@ -100,7 +101,7 @@ export default function NewPost() {
         <Text variant="label">Technique</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {techniqueValues.map((t) => (
-            <Chip key={t} label={titleCase(t)} selected={technique === t} onPress={() => setTechnique(technique === t ? null : t)} />
+            <Chip key={t} icon={techniqueIcon[t]} label={titleCase(t)} selected={technique === t} onPress={() => setTechnique(technique === t ? null : t)} />
           ))}
         </View>
       </View>

@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { Button } from '@/components/Button'
 import { FeedList } from '@/components/FeedList'
+import { Appear } from '@/components/Motion'
 import { Logo } from '@/components/Logo'
 import { Eyebrow, Text } from '@/components/Text'
 import { useTheme } from '@/theme/ThemeProvider'
@@ -15,7 +16,7 @@ export default function Home() {
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
       <FeedList
         header={
-          <View style={{ gap: 18, marginBottom: 18 }}>
+          <Appear style={{ gap: 18, marginBottom: 18 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Logo />
               <Button label="Post" icon={Plus} size="sm" onPress={() => router.push('/post/new')} />
@@ -24,7 +25,7 @@ export default function Home() {
               <Eyebrow>Community</Eyebrow>
               <Text variant="h1">What people are making</Text>
             </View>
-          </View>
+          </Appear>
         }
         empty={
           <View style={{ gap: 12, paddingVertical: 32, alignItems: 'center' }}>

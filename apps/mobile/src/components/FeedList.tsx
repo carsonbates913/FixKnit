@@ -5,8 +5,9 @@ import { useFeed } from '@/api/hooks'
 import { useTheme } from '@/theme/ThemeProvider'
 
 import { Notice } from './Notice'
+import { Appear } from './Motion'
 import { PostCard } from './PostCard'
-import { YarnLoader } from './YarnLoader'
+import { FeedSkeleton } from './Skeleton'
 
 interface FeedListProps {
   author?: string
@@ -24,11 +25,15 @@ export function FeedList({ author, header, empty }: FeedListProps) {
     <FlatList
       data={posts}
       keyExtractor={(p) => p.id}
-      renderItem={({ item }) => <PostCard post={item} />}
+      renderItem={({ item, index }) => (
+        <Appear index={index % 12}>
+          <PostCard post={item} />
+        </Appear>
+      )}
       ListHeaderComponent={header}
       ListEmptyComponent={
         feed.isPending ? (
-          <YarnLoader label="Loading posts…" />
+          <FeedSkeleton />
         ) : feed.isError ? (
           <Notice title="Couldn’t load posts">{feed.error.message}</Notice>
         ) : (
@@ -41,6 +46,7 @@ export function FeedList({ author, header, empty }: FeedListProps) {
       refreshControl={
         <RefreshControl refreshing={feed.isRefetching && !feed.isFetchingNextPage} onRefresh={() => void feed.refetch()} tintColor={colors.primary} />
       }
+      style={styles.list}
       contentContainerStyle={styles.content}
       ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
     />
@@ -48,5 +54,6 @@ export function FeedList({ author, header, empty }: FeedListProps) {
 }
 
 const styles = StyleSheet.create({
+  list: { flex: 1, minHeight: 0 },
   content: { width: '100%', maxWidth: 560, alignSelf: 'center', paddingHorizontal: 18, paddingVertical: 16, flexGrow: 1 },
 })
