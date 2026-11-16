@@ -1,0 +1,46 @@
+# Per-material repair guidance served by /api/guides and attached to analysis results.
+- material: denim
+  instructions: >-
+    Use a denim patch or a heavy-duty thread with a sturdy stitch such as darning or sashiko.
+    Reinforce the edges of the repair to stop the fabric from fraying further.
+- material: wool
+  instructions: >-
+    Use a wool-specific repair kit and match the yarn colour where you can. Darning works well for
+    knits, and needle felting is great for small holes.
+  links:
+    - title: Why and how to repair your wool garments (Core Merino)
+      url: https://www.coremerino.com/why-and-how-to-repair-your-wool-garments/
+    - title: Wool repair video (1)
+      url: https://www.youtube.com/watch?v=7IUh4B7d2ts
+    - title: Wool repair video (2)
+      url: https://youtu.be/1QnTMc4H8ig
+- material: cotton
+  instructions: >-
+    Cotton is easy to repair with a simple running stitch or a patch. Secure the patch with
+    matching thread.
+- material: silk
+  instructions: >-
+    Silk needs delicate handling. Use a fine needle and thread, or a specialised fabric glue for
+    invisible repairs, and avoid pulling or stretching the fabric.
+- material: leather
+  instructions: >-
+    Apply a leather patch or use a leather repair kit. Leather-specific adhesive or stitching
+    gives a smooth, durable finish.
+  links:
+    - title: How to do embroidery on leather (Leatherneo)
+      url: https://www.leatherneo.com/blogs/news-and-stories/how-to-do-embroidery-on-leather
+    - title: Leather repair video (1)
+      url: https://youtu.be/XqXUAPvVaNg
+    - title: Leather repair video (2)
+      url: https://www.youtube.com/watch?v=CXWCnoX3p-g
+- material: linen
+  instructions: >-
+    Repair linen with a simple stitch or a patch, using a linen-compatible thread so the repair
+    blends in.
+- material: polyester
+  instructions: >-
+    Use a polyester patch, or sew over the damaged area with polyester thread for durability.
+    It is a strong synthetic and easy to stitch.
+- material: nylon
+  instructions: >-
+    Use a nylon patch or fabric adhesive. A heavy-duty needle and thread prevents further damage.
