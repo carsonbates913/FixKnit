@@ -32,3 +32,4 @@ npm-debug.log*
 # Runtime artifacts
 temp_image.*
 *.log
+.secrets/

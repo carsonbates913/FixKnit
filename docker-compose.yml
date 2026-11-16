@@ -1,0 +1,33 @@
+# Local development: `docker compose up`, then open http://localhost:5173
+# Works out of the box with fake providers. To use real Google APIs, set the
+# variables in backend/.env and put the service-account JSON in FIXKNIT_SECRETS_DIR.
+services:
+  api:
+    build: ./backend
+    command: uv run --no-sync uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      VISION_PROVIDER: ${VISION_PROVIDER:-fake}
+      INSPIRATION_PROVIDER: ${INSPIRATION_PROVIDER:-fake}
+      GOOGLE_APPLICATION_CREDENTIALS: /secrets/service-account.json
+    volumes:
+      - ./backend/app:/app/app
+      - ${FIXKNIT_SECRETS_DIR:-./backend/.secrets}:/secrets:ro
+    ports:
+      - "8000:8000"
+
+  web:
+    image: node:24-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npx vite --host 0.0.0.0 --port 5173"
+    environment:
+      API_PROXY_TARGET: http://api:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
