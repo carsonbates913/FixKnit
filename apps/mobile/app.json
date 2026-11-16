@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "FixKnit",
+    "slug": "fixknit",
+    "scheme": "fixknit",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.fixknit",
+      "infoPlist": {
+        "NSCameraUsageDescription": "FixKnit uses the camera to photograph garments you want to repair.",
+        "NSPhotoLibraryUsageDescription": "FixKnit lets you choose photos of your repairs and creations to share."
+      }
+    },
+    "android": {
+      "package": "app.fixknit",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "FixKnit",
+      "shortName": "FixKnit",
+      "description": "Repair your clothes, share what you make.",
+      "themeColor": "#0A8046",
+      "backgroundColor": "#FFFFFF"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-font",
+      "expo-image",
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        { "image": "./assets/splash-icon.png", "imageWidth": 120, "backgroundColor": "#FFFFFF", "dark": { "backgroundColor": "#0A0B0B" } }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "FixKnit lets you choose photos of your repairs and creations to share.",
+          "cameraPermission": "FixKnit uses the camera to photograph garments you want to repair."
+        }
+      ]
+    ],
+    "experiments": { "typedRoutes": true }
+  }
+}

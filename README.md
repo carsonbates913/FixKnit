@@ -48,6 +48,31 @@ the OS, with a toggle in the nav.
   `components/brand/StitchGrid.tsx` (the stitch-grid motif).
 - The green yarn ball (`assets/green-yarn.webp`) is the only illustration, used for the hero and loading states.
 
+## Mobile app (`apps/mobile`)
+
+The product is an **Expo (React Native) app** that runs on iOS, Android and the web from one codebase.
+Guests tap *Continue as guest*, choose a name, and can immediately:
+
+- **Post a creation**: up to four photos, a caption, technique and tags, saved to the shared community feed.
+- **Fix something**: photograph damage, get a diagnosis with ranked repair options, start a project.
+- **Track a project**: tick off steps, log progress photos, add the finished photo, share a before/after post.
+- **Browse and like** everyone's posts; view any maker's profile; manage appearance and delete their account.
+
+### Run the demo locally (phones on the same wifi)
+
+```sh
+make db       # local Supabase in Docker + migrations
+make api      # FastAPI on 0.0.0.0:8000
+make mobile   # Expo dev server
+```
+
+- **Any phone browser:** open `http://<your-mac-ip>:8081` (press `w` in the Expo terminal first). No install needed.
+  The app finds the API and Supabase on the same host automatically.
+- **Expo Go:** scan the QR code in the terminal.
+
+The repair assistant currently uses a **fake advisor** with three sample diagnoses (`ADVISOR_PROVIDER=fake`);
+the AI model plugs into `backend/app/providers/advisor/`.
+
 ## Getting started
 
 Requirements: [uv](https://docs.astral.sh/uv/), Node 24+. Alternatively, use Docker.

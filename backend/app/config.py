@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     # Defaults to supabase_url.
     media_public_url: str | None = None
 
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:8081"]
+    # Auth uses bearer tokens (never cookies), so any origin may call the API. This lets phones on
+    # the LAN or a deployed web build reach it without per-host configuration.
+    cors_origins: list[str] = ["*"]
     max_upload_bytes: int = 10 * 1024 * 1024
     max_image_dimension: int = 2048
