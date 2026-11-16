@@ -1,0 +1,552 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FixKnit API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analysis": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Analyze Garment",
+        "description": "Identify the garment type and material in a photo and attach matching repair guides.",
+        "operationId": "analyze_garment",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_analyze_garment"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inspiration": {
+      "get": {
+        "tags": [
+          "inspiration"
+        ],
+        "summary": "Search Inspiration",
+        "description": "Find repair-design inspiration images, e.g. q=sweater&techniques=crochet&colors=green.",
+        "operationId": "search_inspiration",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "What to search for",
+              "title": "Q"
+            },
+            "description": "What to search for"
+          },
+          {
+            "name": "techniques",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Technique"
+              },
+              "default": [],
+              "title": "Techniques"
+            }
+          },
+          {
+            "name": "colors",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Color"
+              },
+              "default": [],
+              "title": "Colors"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspirationResults"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guides": {
+      "get": {
+        "tags": [
+          "guides"
+        ],
+        "summary": "List Guides",
+        "operationId": "list_guides",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RepairGuide"
+                  },
+                  "type": "array",
+                  "title": "Response List Guides"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guides/{material}": {
+      "get": {
+        "tags": [
+          "guides"
+        ],
+        "summary": "Read Guide",
+        "operationId": "read_guide",
+        "parameters": [
+          {
+            "name": "material",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Material"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairGuide"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalysisResult": {
+        "properties": {
+          "garments": {
+            "items": {
+              "$ref": "#/components/schemas/GarmentDetection"
+            },
+            "type": "array",
+            "title": "Garments"
+          },
+          "materials": {
+            "items": {
+              "$ref": "#/components/schemas/MaterialDetection"
+            },
+            "type": "array",
+            "title": "Materials"
+          },
+          "repair_guides": {
+            "items": {
+              "$ref": "#/components/schemas/RepairGuide"
+            },
+            "type": "array",
+            "title": "Repair Guides"
+          },
+          "labels": {
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            },
+            "type": "array",
+            "title": "Labels"
+          }
+        },
+        "type": "object",
+        "required": [
+          "garments",
+          "materials",
+          "repair_guides",
+          "labels"
+        ],
+        "title": "AnalysisResult"
+      },
+      "Body_analyze_garment": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_analyze_garment"
+      },
+      "Color": {
+        "type": "string",
+        "enum": [
+          "red",
+          "orange",
+          "yellow",
+          "green",
+          "blue",
+          "pink",
+          "purple",
+          "brown",
+          "black",
+          "white"
+        ],
+        "title": "Color"
+      },
+      "GarmentDetection": {
+        "properties": {
+          "garment": {
+            "$ref": "#/components/schemas/GarmentType"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "garment",
+          "confidence"
+        ],
+        "title": "GarmentDetection"
+      },
+      "GarmentType": {
+        "type": "string",
+        "enum": [
+          "pants",
+          "sweater",
+          "shirt",
+          "jacket",
+          "coat",
+          "dress",
+          "skirt",
+          "scarf",
+          "hat",
+          "gloves",
+          "shoes"
+        ],
+        "title": "GarmentType"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "ok"
+          }
+        },
+        "type": "object",
+        "title": "Health"
+      },
+      "InspirationImage": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "thumbnail_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumbnail Url"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "title"
+        ],
+        "title": "InspirationImage"
+      },
+      "InspirationResults": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "images": {
+            "items": {
+              "$ref": "#/components/schemas/InspirationImage"
+            },
+            "type": "array",
+            "title": "Images"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "images"
+        ],
+        "title": "InspirationResults"
+      },
+      "Label": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "description",
+          "score"
+        ],
+        "title": "Label",
+        "description": "A raw label from the vision provider."
+      },
+      "Material": {
+        "type": "string",
+        "enum": [
+          "denim",
+          "wool",
+          "cotton",
+          "silk",
+          "leather",
+          "linen",
+          "polyester",
+          "nylon"
+        ],
+        "title": "Material"
+      },
+      "MaterialDetection": {
+        "properties": {
+          "material": {
+            "$ref": "#/components/schemas/Material"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "material",
+          "confidence"
+        ],
+        "title": "MaterialDetection"
+      },
+      "RepairGuide": {
+        "properties": {
+          "material": {
+            "$ref": "#/components/schemas/Material"
+          },
+          "instructions": {
+            "type": "string",
+            "title": "Instructions"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/RepairLink"
+            },
+            "type": "array",
+            "title": "Links",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "material",
+          "instructions"
+        ],
+        "title": "RepairGuide"
+      },
+      "RepairLink": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "url"
+        ],
+        "title": "RepairLink"
+      },
+      "Technique": {
+        "type": "string",
+        "enum": [
+          "knitting",
+          "crochet",
+          "embroidery"
+        ],
+        "title": "Technique"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
