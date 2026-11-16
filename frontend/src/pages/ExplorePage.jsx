@@ -18,6 +18,7 @@ import './ExplorePage.css';
 export default function ExplorePage() {
 
   const [images, setImages] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -36,6 +37,7 @@ export default function ExplorePage() {
 
 
   const onSubmit = async (data) => {
+    
     const { query, filters } = data;
   
     const requestData = {
@@ -47,6 +49,8 @@ export default function ExplorePage() {
     };
   
     try {
+      setLoading(true);
+      setImages(null);
       const response = await fetch('http://localhost:8000/search_images/', {
         method: 'POST',
         headers: {
@@ -58,8 +62,10 @@ export default function ExplorePage() {
       if (response.ok) {
         const result = await response.json();
         if (result.items) {
+          setLoading(false);
           setImages(result.items);
         } else {
+          setLoading(false);
           setImages([]);
         }
       } else {

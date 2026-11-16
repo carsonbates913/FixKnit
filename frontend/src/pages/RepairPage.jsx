@@ -45,11 +45,16 @@ const getRepairInstructions = (material) => {
 
 export default function RepairPage() {
 
+  const leatherlinks = ["https://www.leatherneo.com/blogs/news-and-stories/how-to-do-embroidery-on-leather#:~:text=It%20is%20important%20to%20use,leather%2C%20use%20a%20larger%20size.", "https://youtu.be/XqXUAPvVaNg?si=2jSiRmZRLNB_57Z1", "https://www.youtube.com/watch?v=CXWCnoX3p-g"]
+
+const woollinks = ["https://www.coremerino.com/why-and-how-to-repair-your-wool-garments/", "https://www.youtube.com/watch?v=7IUh4B7d2ts", "https://youtu.be/1QnTMc4H8ig?si=LPhN5taqv_ChxyLA"]
+
   const [file, setFile] = useState();
   const [previewUrl, setPreviewUrl] = useState();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [report, setReport] = useState({}); // To store the detected labels
+  const [images, setImages] = useState(null); // To store the images for inspiration
 
 
   useEffect(() => {
@@ -83,6 +88,33 @@ formData.append("file", selectedFile);
         if (response.ok) {
           setMessage(data.message);
           setReport(data.result); // Set the detected labels
+          console.log(data);
+          const requestData = {
+            query: data.result.items[0],
+            filters: {
+              type: [],
+              colors: [],
+            },
+          };
+          const response = await fetch('http://localhost:8000/search_images/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+          });
+      
+          if (response.ok) {
+            const result = await response.json();
+            if (result.items) {
+              setImages(result.items);
+            } else {
+              setImages([]);
+            }
+          } else {
+            console.error('Error with the request:', response.statusText);
+          }
+
         } else {
           setMessage(data.error || "An error occurred");
         }
@@ -172,23 +204,58 @@ formData.append("file", selectedFile);
           <section className="links-section">
             <h1>Helpful Links</h1>
             <div className="links-container">
-              <Card className="card">
-                <CardContent>
-                  <p>Card Content</p>
-                </CardContent>
-              </Card>
-              <Card className="card">
-                <CardContent>
-                  <p>Card Content</p>
-                </CardContent>
-              </Card>
-              <Card className="card">
-                <CardContent>
-                  <p>Card Content</p>
-                </CardContent>
-              </Card>
-            </div>
+  {report.materials == 'leather' ? (
+    // Display Leather Links
+    leatherlinks.map((link, index) => (
+      <Card key={index} className="card">
+        <CardContent>
+          <a href={link} target="_blank" rel="noopener noreferrer">
+            {`Leather Repair Link ${index + 1}`}
+          </a>
+        </CardContent>
+      </Card>
+    ))
+  ) : (
+    // Display Wool Links (if not 'leather')
+    woollinks.map((link, index) => (
+      <Card key={index} className="card">
+        <CardContent>
+          <a href={link} target="_blank" rel="noopener noreferrer">
+            {`Wool Repair Link ${index + 1}`}
+          </a>
+        </CardContent>
+      </Card>
+    ))
+  )}
+</div>
+<h1>Inspiration</h1>
           </section>
+          {images && 
+        <motion.div 
+        className="card-container"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {images.map((image, index) => (
+          <motion.div 
+            key={index} 
+            className="card border rounded overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              delay: index * 0.1,
+              duration: 0.5
+            }}
+          >
+            <img
+              src={image.link}
+              alt={image.title}
+              className="w-full h-auto object-cover"
+            />
+          </motion.div>
+        ))}
+      </motion.div>}
 
         </main>
       )
