@@ -1,4 +1,5 @@
 import uuid
+from collections.abc import Callable
 
 from fastapi import HTTPException, UploadFile, status
 from sqlalchemy import select
@@ -22,10 +23,8 @@ async def store_upload(
     image = await read_image_upload(file, settings.max_upload_bytes, settings.max_image_dimension)
     media_id = uuid.uuid4()
     path = f"{owner_id}/{media_id}.jpg"
-    url = await store.put(path, image.data, image.content_type)
-    media = Media(
-        id=media_id, owner_id=owner_id, path=path, url=url, width=image.width, height=image.height
-    )
+    await store.put(path, image.data, image.content_type)
+    media = Media(id=media_id, owner_id=owner_id, path=path, width=image.width, height=image.height)
     session.add(media)
     await session.flush()
     return media, image
@@ -46,5 +45,8 @@ async def owned_media(
     return by_id
 
 
-def media_out(media: Media) -> MediaOut:
-    return MediaOut(id=media.id, url=media.url, width=media.width, height=media.height)
+UrlFor = Callable[[str], str]
+
+
+def media_out(media: Media, url_for: UrlFor) -> MediaOut:
+    return MediaOut(id=media.id, url=url_for(media.path), width=media.width, height=media.height)

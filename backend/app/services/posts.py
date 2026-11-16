@@ -6,10 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Like, Post
 from app.schemas.social import PostMediaOut, PostOut, ProfileSummary
+from app.services.media import UrlFor
 
 
 async def serialize_posts(
-    session: AsyncSession, posts: Sequence[Post], viewer_id: uuid.UUID | None
+    session: AsyncSession, posts: Sequence[Post], viewer_id: uuid.UUID | None, url_for: UrlFor
 ) -> list[PostOut]:
     ids = [p.id for p in posts]
     counts: dict[uuid.UUID, int] = {}
@@ -35,7 +36,7 @@ async def serialize_posts(
             media=[
                 PostMediaOut(
                     id=pm.media.id,
-                    url=pm.media.url,
+                    url=url_for(pm.media.path),
                     width=pm.media.width,
                     height=pm.media.height,
                     role=pm.role,

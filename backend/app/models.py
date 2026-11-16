@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -38,7 +38,6 @@ class Media(Base):
         ForeignKey("profiles.id", ondelete="CASCADE"), index=True
     )
     path: Mapped[str] = mapped_column(String(200), unique=True)
-    url: Mapped[str] = mapped_column(Text)
     width: Mapped[int] = mapped_column(Integer)
     height: Mapped[int] = mapped_column(Integer)
     created_at: Mapped[datetime] = _created()

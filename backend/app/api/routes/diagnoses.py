@@ -7,16 +7,16 @@ from app.auth import CurrentProfile
 from app.db import SessionDep
 from app.models import Diagnosis
 from app.schemas.diagnosis import DiagnosisOut, DiagnosisResult
-from app.services.media import store_upload
+from app.services.media import UrlFor, store_upload
 
 router = APIRouter(prefix="/diagnoses", tags=["diagnoses"])
 
 
-def diagnosis_out(d: Diagnosis) -> DiagnosisOut:
+def diagnosis_out(d: Diagnosis, url_for: UrlFor) -> DiagnosisOut:
     return DiagnosisOut(
         **DiagnosisResult.model_validate(d.result).model_dump(),
         id=d.id,
-        photo_url=d.media.url,
+        photo_url=url_for(d.media.path),
         created_at=d.created_at,
     )
 
@@ -37,14 +37,17 @@ async def create_diagnosis(
     session.add(diagnosis)
     await session.commit()
     await session.refresh(diagnosis)
-    return diagnosis_out(diagnosis)
+    return diagnosis_out(diagnosis, store.public_url)
 
 
 @router.get("/{diagnosis_id}")
 async def read_diagnosis(
-    diagnosis_id: uuid.UUID, profile: CurrentProfile, session: SessionDep
+    diagnosis_id: uuid.UUID,
+    profile: CurrentProfile,
+    session: SessionDep,
+    store: MediaStoreDep,
 ) -> DiagnosisOut:
     diagnosis = await session.get(Diagnosis, diagnosis_id)
     if diagnosis is None or diagnosis.owner_id != profile.id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Diagnosis not found")
-    return diagnosis_out(diagnosis)
+    return diagnosis_out(diagnosis, store.public_url)

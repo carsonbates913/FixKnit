@@ -3,6 +3,7 @@ import uuid
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
+from app.api.deps import MediaStoreDep
 from app.auth import CurrentProfile
 from app.db import SessionDep
 from app.models import Diagnosis, Post, PostMedia, Project, ProjectUpdate
@@ -39,16 +40,21 @@ async def _reload(session: SessionDep, project_id: uuid.UUID) -> Project:
 
 
 @router.get("")
-async def list_projects(profile: CurrentProfile, session: SessionDep) -> list[ProjectOut]:
+async def list_projects(
+    profile: CurrentProfile, session: SessionDep, store: MediaStoreDep
+) -> list[ProjectOut]:
     projects = await session.scalars(
         select(Project).where(Project.owner_id == profile.id).order_by(Project.updated_at.desc())
     )
-    return [project_out(p) for p in projects]
+    return [project_out(p, store.public_url) for p in projects]
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_project(
-    body: ProjectCreate, profile: CurrentProfile, session: SessionDep
+    body: ProjectCreate,
+    profile: CurrentProfile,
+    session: SessionDep,
+    store: MediaStoreDep,
 ) -> ProjectOut:
     """Start a project from one of a diagnosis's repair options."""
     diagnosis = await session.get(Diagnosis, body.diagnosis_id)
@@ -78,19 +84,26 @@ async def create_project(
     await session.flush()
     project_id = project.id
     await session.commit()
-    return project_out(await _reload(session, project_id))
+    return project_out(await _reload(session, project_id), store.public_url)
 
 
 @router.get("/{project_id}")
 async def read_project(
-    project_id: uuid.UUID, profile: CurrentProfile, session: SessionDep
+    project_id: uuid.UUID,
+    profile: CurrentProfile,
+    session: SessionDep,
+    store: MediaStoreDep,
 ) -> ProjectOut:
-    return project_out(await _owned_project(session, project_id, profile.id))
+    return project_out(await _owned_project(session, project_id, profile.id), store.public_url)
 
 
 @router.patch("/{project_id}")
 async def update_project(
-    project_id: uuid.UUID, body: ProjectPatch, profile: CurrentProfile, session: SessionDep
+    project_id: uuid.UUID,
+    body: ProjectPatch,
+    profile: CurrentProfile,
+    session: SessionDep,
+    store: MediaStoreDep,
 ) -> ProjectOut:
     project = await _owned_project(session, project_id, profile.id)
     if body.title is not None:
@@ -103,12 +116,16 @@ async def update_project(
     if body.status is not None:
         project.status = body.status
     await session.commit()
-    return project_out(await _reload(session, project.id))
+    return project_out(await _reload(session, project.id), store.public_url)
 
 
 @router.post("/{project_id}/updates", status_code=status.HTTP_201_CREATED)
 async def add_update(
-    project_id: uuid.UUID, body: ProjectUpdateIn, profile: CurrentProfile, session: SessionDep
+    project_id: uuid.UUID,
+    body: ProjectUpdateIn,
+    profile: CurrentProfile,
+    session: SessionDep,
+    store: MediaStoreDep,
 ) -> ProjectOut:
     """Log progress, or the finished result (an 'after' update marks the project done)."""
     project = await _owned_project(session, project_id, profile.id)
@@ -125,12 +142,16 @@ async def add_update(
     )
     project.status = ProjectStatus.DONE if body.kind == "after" else ProjectStatus.IN_PROGRESS
     await session.commit()
-    return project_out(await _reload(session, project.id))
+    return project_out(await _reload(session, project.id), store.public_url)
 
 
 @router.post("/{project_id}/publish", status_code=status.HTTP_201_CREATED)
 async def publish_project(
-    project_id: uuid.UUID, body: PublishProject, profile: CurrentProfile, session: SessionDep
+    project_id: uuid.UUID,
+    body: PublishProject,
+    profile: CurrentProfile,
+    session: SessionDep,
+    store: MediaStoreDep,
 ) -> PostOut:
     """Share a finished project as a before/after post."""
     project = await _owned_project(session, project_id, profile.id)
@@ -159,4 +180,4 @@ async def publish_project(
     await session.commit()
     fresh = await session.get(Post, post_id, populate_existing=True)
     assert fresh is not None
-    return (await serialize_posts(session, [fresh], profile.id))[0]
+    return (await serialize_posts(session, [fresh], profile.id, store.public_url))[0]

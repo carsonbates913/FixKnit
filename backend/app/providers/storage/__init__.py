@@ -11,7 +11,10 @@ def build_media_store(settings: Settings) -> MediaStore:
     from app.providers.storage.supabase import SupabaseMediaStore
 
     return SupabaseMediaStore(
-        settings.supabase_url, settings.supabase_secret_key, settings.media_bucket
+        settings.supabase_url,
+        settings.supabase_secret_key,
+        settings.media_bucket,
+        public_url=settings.media_public_url,
     )
 
 

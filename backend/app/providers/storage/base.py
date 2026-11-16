@@ -2,9 +2,13 @@ from typing import Protocol
 
 
 class MediaStore(Protocol):
-    """Stores image bytes and returns a public URL. Raises ProviderError on failure."""
+    """Stores image bytes under a path. Raises ProviderError on failure."""
 
-    async def put(self, path: str, data: bytes, content_type: str) -> str: ...
+    async def put(self, path: str, data: bytes, content_type: str) -> None: ...
+
+    def public_url(self, path: str) -> str:
+        """The URL clients load the object from. Computed per response, never stored."""
+        ...
 
     async def delete(self, paths: list[str]) -> None: ...
 

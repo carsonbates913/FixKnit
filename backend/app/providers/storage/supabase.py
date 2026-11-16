@@ -24,7 +24,7 @@ class SupabaseMediaStore:
             base_url=f"{base}/storage/v1", headers=headers, timeout=20.0
         )
 
-    async def put(self, path: str, data: bytes, content_type: str) -> str:
+    async def put(self, path: str, data: bytes, content_type: str) -> None:
         response = await self._client.post(
             f"/object/{self._bucket}/{path}",
             content=data,
@@ -35,6 +35,8 @@ class SupabaseMediaStore:
                 "Storage upload failed %s: %s", response.status_code, response.text[:300]
             )
             raise ProviderError(f"Couldn't store the photo (HTTP {response.status_code})")
+
+    def public_url(self, path: str) -> str:
         return f"{self._public_base}/{path}"
 
     async def delete(self, paths: list[str]) -> None:

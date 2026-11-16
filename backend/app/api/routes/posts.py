@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Query, Response, status
 from sqlalchemy import delete, tuple_
 from sqlalchemy.dialects.postgresql import insert
 
+from app.api.deps import MediaStoreDep
 from app.auth import CurrentProfile, OptionalUser
 from app.db import SessionDep
 from app.models import Like, Post, PostMedia, Profile
@@ -31,6 +32,7 @@ def _decode_cursor(cursor: str) -> tuple[datetime, uuid.UUID]:
 async def list_posts(
     session: SessionDep,
     viewer: OptionalUser,
+    store: MediaStoreDep,
     author: str | None = None,
     tag: str | None = None,
     cursor: str | None = None,
@@ -50,13 +52,15 @@ async def list_posts(
     posts = list((await session.scalars(stmt.limit(limit + 1))).unique())
     page, more = posts[:limit], len(posts) > limit
     return PostPage(
-        items=await serialize_posts(session, page, viewer.id if viewer else None),
+        items=await serialize_posts(session, page, viewer.id if viewer else None, store.public_url),
         next_cursor=_encode_cursor(page[-1]) if more else None,
     )
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-async def create_post(body: PostCreate, profile: CurrentProfile, session: SessionDep) -> PostOut:
+async def create_post(
+    body: PostCreate, profile: CurrentProfile, session: SessionDep, store: MediaStoreDep
+) -> PostOut:
     """Share a creation: one to six photos you've uploaded, with a caption."""
     await owned_media(session, profile.id, [m.media_id for m in body.media])
     post = Post(
@@ -75,15 +79,19 @@ async def create_post(body: PostCreate, profile: CurrentProfile, session: Sessio
     await session.commit()
     fresh = await session.get(Post, post_id, populate_existing=True)
     assert fresh is not None
-    return (await serialize_posts(session, [fresh], profile.id))[0]
+    return (await serialize_posts(session, [fresh], profile.id, store.public_url))[0]
 
 
 @router.get("/{post_id}")
-async def read_post(post_id: uuid.UUID, session: SessionDep, viewer: OptionalUser) -> PostOut:
+async def read_post(
+    post_id: uuid.UUID, session: SessionDep, viewer: OptionalUser, store: MediaStoreDep
+) -> PostOut:
     post = await session.get(Post, post_id)
     if post is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Post not found")
-    return (await serialize_posts(session, [post], viewer.id if viewer else None))[0]
+    return (
+        await serialize_posts(session, [post], viewer.id if viewer else None, store.public_url)
+    )[0]
 
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)

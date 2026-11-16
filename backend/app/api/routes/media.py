@@ -20,4 +20,4 @@ async def upload_media(
     """Upload a photo for use in a post or project update."""
     media, _ = await store_upload(file, profile.id, settings, store, session)
     await session.commit()
-    return media_out(media)
+    return media_out(media, store.public_url)
