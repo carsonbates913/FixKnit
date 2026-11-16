@@ -95,6 +95,260 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Me */
+        get: operations["read_me"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Account
+         * @description Delete the caller's account: photos, posts, projects, profile and the auth user.
+         */
+        delete: operations["delete_account"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Upsert Profile
+         * @description Create the caller's profile (onboarding) or update it.
+         */
+        put: operations["upsert_profile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profiles/{handle}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Profile */
+        get: operations["read_profile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Media
+         * @description Upload a photo for use in a post or project update.
+         */
+        post: operations["upload_media"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnoses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Diagnosis
+         * @description Photograph a damaged garment: identify it, find the damage and propose repair options.
+         */
+        post: operations["create_diagnosis"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnoses/{diagnosis_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Diagnosis */
+        get: operations["read_diagnosis"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Projects */
+        get: operations["list_projects"];
+        put?: never;
+        /**
+         * Create Project
+         * @description Start a project from one of a diagnosis's repair options.
+         */
+        post: operations["create_project"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Project */
+        get: operations["read_project"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Project */
+        patch: operations["update_project"];
+        trace?: never;
+    };
+    "/api/projects/{project_id}/updates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Update
+         * @description Log progress, or the finished result (an 'after' update marks the project done).
+         */
+        post: operations["add_update"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish Project
+         * @description Share a finished project as a before/after post.
+         */
+        post: operations["publish_project"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Posts
+         * @description The community feed, newest first. Filter by author handle or tag.
+         */
+        get: operations["list_posts"];
+        put?: never;
+        /**
+         * Create Post
+         * @description Share a creation: one to six photos you've uploaded, with a caption.
+         */
+        post: operations["create_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/posts/{post_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Post */
+        get: operations["read_post"];
+        put?: never;
+        post?: never;
+        /** Delete Post */
+        delete: operations["delete_post"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/posts/{post_id}/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Like Post */
+        put: operations["like_post"];
+        post?: never;
+        /** Unlike Post */
+        delete: operations["unlike_post"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -115,11 +369,71 @@ export interface components {
             /** File */
             file: string;
         };
+        /** Body_create_diagnosis */
+        Body_create_diagnosis: {
+            /** File */
+            file: string;
+        };
+        /** Body_upload_media */
+        Body_upload_media: {
+            /** File */
+            file: string;
+        };
         /**
          * Color
          * @enum {string}
          */
         Color: "red" | "orange" | "yellow" | "green" | "blue" | "pink" | "purple" | "brown" | "black" | "white";
+        /** Damage */
+        Damage: {
+            kind: components["schemas"]["DamageKind"];
+            /** Location */
+            location: string;
+            /** Size Cm */
+            size_cm?: number | null;
+            severity: components["schemas"]["Severity"];
+        };
+        /**
+         * DamageKind
+         * @enum {string}
+         */
+        DamageKind: "hole" | "tear" | "stain" | "pilling" | "fraying" | "split_seam" | "snag" | "worn_thin";
+        /** DiagnosisOut */
+        DiagnosisOut: {
+            garment: components["schemas"]["GarmentType"] | null;
+            /**
+             * Garment Confidence
+             * @default 0
+             */
+            garment_confidence: number;
+            material: components["schemas"]["Material"] | null;
+            /**
+             * Material Confidence
+             * @default 0
+             */
+            material_confidence: number;
+            /** Damages */
+            damages: components["schemas"]["Damage"][];
+            /** Options */
+            options: components["schemas"]["RepairOption"][];
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Photo Url */
+            photo_url: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** GarmentDetection */
         GarmentDetection: {
             garment: components["schemas"]["GarmentType"];
@@ -183,6 +497,259 @@ export interface components {
             /** Confidence */
             confidence: number;
         };
+        /** Me */
+        Me: {
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Is Guest */
+            is_guest: boolean;
+            profile: components["schemas"]["ProfileOut"] | null;
+        };
+        /** MediaOut */
+        MediaOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Url */
+            url: string;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+        };
+        /** PostCreate */
+        PostCreate: {
+            /**
+             * Caption
+             * @default
+             */
+            caption: string;
+            technique?: components["schemas"]["Technique"] | null;
+            /**
+             * Tags
+             * @default []
+             */
+            tags: string[];
+            /** Media */
+            media: components["schemas"]["PostMediaIn"][];
+        };
+        /** PostMediaIn */
+        PostMediaIn: {
+            /**
+             * Media Id
+             * Format: uuid
+             */
+            media_id: string;
+            /**
+             * Role
+             * @default gallery
+             * @enum {string}
+             */
+            role: "before" | "after" | "gallery";
+        };
+        /** PostMediaOut */
+        PostMediaOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Url */
+            url: string;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "before" | "after" | "gallery";
+        };
+        /** PostOut */
+        PostOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            author: components["schemas"]["ProfileSummary"];
+            /** Caption */
+            caption: string;
+            technique: components["schemas"]["Technique"] | null;
+            /** Tags */
+            tags: string[];
+            /** Media */
+            media: components["schemas"]["PostMediaOut"][];
+            /** Like Count */
+            like_count: number;
+            /** Liked By Me */
+            liked_by_me: boolean;
+            /** Project Id */
+            project_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** PostPage */
+        PostPage: {
+            /** Items */
+            items: components["schemas"]["PostOut"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /** ProfileIn */
+        ProfileIn: {
+            /** Handle */
+            handle: string;
+            /** Display Name */
+            display_name: string;
+            /**
+             * Bio
+             * @default
+             */
+            bio: string;
+            /**
+             * Techniques
+             * @default []
+             */
+            techniques: components["schemas"]["Technique"][];
+        };
+        /** ProfileOut */
+        ProfileOut: {
+            /** Handle */
+            handle: string;
+            /** Display Name */
+            display_name: string;
+            /** Bio */
+            bio: string;
+            /** Techniques */
+            techniques: components["schemas"]["Technique"][];
+            /** Post Count */
+            post_count: number;
+            /** Is Me */
+            is_me: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** ProfileSummary */
+        ProfileSummary: {
+            /** Handle */
+            handle: string;
+            /** Display Name */
+            display_name: string;
+        };
+        /** ProjectCreate */
+        ProjectCreate: {
+            /**
+             * Diagnosis Id
+             * Format: uuid
+             */
+            diagnosis_id: string;
+            /** Option Id */
+            option_id: string;
+            /** Title */
+            title?: string | null;
+        };
+        /** ProjectOut */
+        ProjectOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            status: components["schemas"]["ProjectStatus"];
+            garment: components["schemas"]["GarmentType"] | null;
+            material: components["schemas"]["Material"] | null;
+            technique: components["schemas"]["Technique"] | null;
+            plan: components["schemas"]["RepairOption"];
+            /** Steps Done */
+            steps_done: number[];
+            before_photo: components["schemas"]["MediaOut"] | null;
+            /** Updates */
+            updates: components["schemas"]["ProjectUpdateOut"][];
+            /** Post Id */
+            post_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** ProjectPatch */
+        ProjectPatch: {
+            /** Title */
+            title?: string | null;
+            status?: components["schemas"]["ProjectStatus"] | null;
+            /** Steps Done */
+            steps_done?: number[] | null;
+        };
+        /**
+         * ProjectStatus
+         * @enum {string}
+         */
+        ProjectStatus: "planning" | "in_progress" | "done";
+        /** ProjectUpdateIn */
+        ProjectUpdateIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "progress" | "after";
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /** Media Id */
+            media_id?: string | null;
+        };
+        /** ProjectUpdateOut */
+        ProjectUpdateOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "progress" | "after";
+            /** Note */
+            note: string;
+            photo: components["schemas"]["MediaOut"] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** PublishProject */
+        PublishProject: {
+            /**
+             * Caption
+             * @default
+             */
+            caption: string;
+        };
         /** RepairGuide */
         RepairGuide: {
             material: components["schemas"]["Material"];
@@ -201,6 +768,34 @@ export interface components {
             /** Url */
             url: string;
         };
+        /** RepairOption */
+        RepairOption: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string;
+            technique?: components["schemas"]["Technique"] | null;
+            /**
+             * Visibility
+             * @enum {string}
+             */
+            visibility: "invisible" | "visible";
+            /** Difficulty */
+            difficulty: number;
+            /** Minutes */
+            minutes: number;
+            /** Materials */
+            materials: string[];
+            /** Steps */
+            steps: string[];
+        };
+        /**
+         * Severity
+         * @enum {string}
+         */
+        Severity: "minor" | "moderate" | "severe";
         /**
          * Technique
          * @enum {string}
@@ -228,7 +823,12 @@ export interface components {
 }
 export type AnalysisResult = components['schemas']['AnalysisResult'];
 export type BodyAnalyzeGarment = components['schemas']['Body_analyze_garment'];
+export type BodyCreateDiagnosis = components['schemas']['Body_create_diagnosis'];
+export type BodyUploadMedia = components['schemas']['Body_upload_media'];
 export type Color = components['schemas']['Color'];
+export type Damage = components['schemas']['Damage'];
+export type DamageKind = components['schemas']['DamageKind'];
+export type DiagnosisOut = components['schemas']['DiagnosisOut'];
 export type GarmentDetection = components['schemas']['GarmentDetection'];
 export type GarmentType = components['schemas']['GarmentType'];
 export type HttpValidationError = components['schemas']['HTTPValidationError'];
@@ -238,8 +838,27 @@ export type InspirationResults = components['schemas']['InspirationResults'];
 export type Label = components['schemas']['Label'];
 export type Material = components['schemas']['Material'];
 export type MaterialDetection = components['schemas']['MaterialDetection'];
+export type Me = components['schemas']['Me'];
+export type MediaOut = components['schemas']['MediaOut'];
+export type PostCreate = components['schemas']['PostCreate'];
+export type PostMediaIn = components['schemas']['PostMediaIn'];
+export type PostMediaOut = components['schemas']['PostMediaOut'];
+export type PostOut = components['schemas']['PostOut'];
+export type PostPage = components['schemas']['PostPage'];
+export type ProfileIn = components['schemas']['ProfileIn'];
+export type ProfileOut = components['schemas']['ProfileOut'];
+export type ProfileSummary = components['schemas']['ProfileSummary'];
+export type ProjectCreate = components['schemas']['ProjectCreate'];
+export type ProjectOut = components['schemas']['ProjectOut'];
+export type ProjectPatch = components['schemas']['ProjectPatch'];
+export type ProjectStatus = components['schemas']['ProjectStatus'];
+export type ProjectUpdateIn = components['schemas']['ProjectUpdateIn'];
+export type ProjectUpdateOut = components['schemas']['ProjectUpdateOut'];
+export type PublishProject = components['schemas']['PublishProject'];
 export type RepairGuide = components['schemas']['RepairGuide'];
 export type RepairLink = components['schemas']['RepairLink'];
+export type RepairOption = components['schemas']['RepairOption'];
+export type Severity = components['schemas']['Severity'];
 export type Technique = components['schemas']['Technique'];
 export type ValidationError = components['schemas']['ValidationError'];
 export type $defs = Record<string, never>;
@@ -382,6 +1001,579 @@ export interface operations {
             };
         };
     };
+    read_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Me"];
+                };
+            };
+        };
+    };
+    delete_account: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    upsert_profile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_profile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                handle: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_media: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_media"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_diagnosis: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_create_diagnosis"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosisOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_diagnosis: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                diagnosis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosisOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_projects: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectOut"][];
+                };
+            };
+        };
+    };
+    create_project: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_project: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_project: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectUpdateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    publish_project: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishProject"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_posts: {
+        parameters: {
+            query?: {
+                author?: string | null;
+                tag?: string | null;
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PostCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    like_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unlike_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
 }
 type FlattenedDeepRequired<T> = {
     [K in keyof T]-?: FlattenedDeepRequired<T[K] extends unknown[] | undefined | null ? Extract<T[K], unknown[]>[number] : T[K]>;
@@ -392,6 +1584,14 @@ type ReadonlyArray<T> = [
     unknown[]
 ] ? Readonly<Exclude<T, undefined>> : Readonly<Exclude<T, undefined>[]>;
 export const colorValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["Color"]> = ["red", "orange", "yellow", "green", "blue", "pink", "purple", "brown", "black", "white"];
+export const damageKindValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["DamageKind"]> = ["hole", "tear", "stain", "pilling", "fraying", "split_seam", "snag", "worn_thin"];
 export const garmentTypeValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["GarmentType"]> = ["pants", "sweater", "shirt", "jacket", "coat", "dress", "skirt", "scarf", "hat", "gloves", "shoes"];
 export const materialValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["Material"]> = ["denim", "wool", "cotton", "silk", "leather", "linen", "polyester", "nylon"];
+export const postMediaInRoleValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["PostMediaIn"]["role"]> = ["before", "after", "gallery"];
+export const postMediaOutRoleValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["PostMediaOut"]["role"]> = ["before", "after", "gallery"];
+export const projectStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["ProjectStatus"]> = ["planning", "in_progress", "done"];
+export const projectUpdateInKindValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["ProjectUpdateIn"]["kind"]> = ["progress", "after"];
+export const projectUpdateOutKindValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["ProjectUpdateOut"]["kind"]> = ["progress", "after"];
+export const repairOptionVisibilityValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["RepairOption"]["visibility"]> = ["invisible", "visible"];
+export const severityValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["Severity"]> = ["minor", "moderate", "severe"];
 export const techniqueValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["Technique"]> = ["knitting", "crochet", "embroidery"];

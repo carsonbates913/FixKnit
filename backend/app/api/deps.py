@@ -3,7 +3,9 @@ from typing import Annotated
 from fastapi import Depends, Request
 
 from app.config import Settings
+from app.providers.advisor import RepairAdvisor
 from app.providers.inspiration import InspirationProvider
+from app.providers.storage import MediaStore
 from app.providers.vision import VisionProvider
 
 
@@ -25,3 +27,17 @@ def get_inspiration_provider(request: Request) -> InspirationProvider:
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 VisionDep = Annotated[VisionProvider, Depends(get_vision_provider)]
 InspirationDep = Annotated[InspirationProvider, Depends(get_inspiration_provider)]
+
+
+def get_media_store(request: Request) -> MediaStore:
+    store: MediaStore = request.app.state.media_store
+    return store
+
+
+def get_repair_advisor(request: Request) -> RepairAdvisor:
+    advisor: RepairAdvisor = request.app.state.advisor
+    return advisor
+
+
+MediaStoreDep = Annotated[MediaStore, Depends(get_media_store)]
+AdvisorDep = Annotated[RepairAdvisor, Depends(get_repair_advisor)]

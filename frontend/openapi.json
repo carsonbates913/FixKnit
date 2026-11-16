@@ -206,6 +206,894 @@
           }
         }
       }
+    },
+    "/api/me": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Read Me",
+        "operationId": "read_me",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Me"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Delete Account",
+        "description": "Delete the caller's account: photos, posts, projects, profile and the auth user.",
+        "operationId": "delete_account",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/me/profile": {
+      "put": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Upsert Profile",
+        "description": "Create the caller's profile (onboarding) or update it.",
+        "operationId": "upsert_profile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/profiles/{handle}": {
+      "get": {
+        "tags": [
+          "profiles"
+        ],
+        "summary": "Read Profile",
+        "operationId": "read_profile",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Handle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/media": {
+      "post": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Upload Media",
+        "description": "Upload a photo for use in a post or project update.",
+        "operationId": "upload_media",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_media"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/diagnoses": {
+      "post": {
+        "tags": [
+          "diagnoses"
+        ],
+        "summary": "Create Diagnosis",
+        "description": "Photograph a damaged garment: identify it, find the damage and propose repair options.",
+        "operationId": "create_diagnosis",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_diagnosis"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiagnosisOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/diagnoses/{diagnosis_id}": {
+      "get": {
+        "tags": [
+          "diagnoses"
+        ],
+        "summary": "Read Diagnosis",
+        "operationId": "read_diagnosis",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "diagnosis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Diagnosis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiagnosisOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "List Projects",
+        "operationId": "list_projects",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Projects"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Create Project",
+        "description": "Start a project from one of a diagnosis's repair options.",
+        "operationId": "create_project",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/projects/{project_id}": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Read Project",
+        "operationId": "read_project",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Update Project",
+        "operationId": "update_project",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{project_id}/updates": {
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Add Update",
+        "description": "Log progress, or the finished result (an 'after' update marks the project done).",
+        "operationId": "add_update",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectUpdateIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{project_id}/publish": {
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Publish Project",
+        "description": "Share a finished project as a before/after post.",
+        "operationId": "publish_project",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishProject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "List Posts",
+        "description": "The community feed, newest first. Filter by author handle or tag.",
+        "operationId": "list_posts",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "author",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Author"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tag"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Create Post",
+        "description": "Share a creation: one to six photos you've uploaded, with a caption.",
+        "operationId": "create_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{post_id}": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Read Post",
+        "operationId": "read_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "post_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Post Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Delete Post",
+        "operationId": "delete_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "post_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Post Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{post_id}/like": {
+      "put": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Like Post",
+        "operationId": "like_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "post_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Post Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Unlike Post",
+        "operationId": "unlike_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "post_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Post Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -264,6 +1152,34 @@
         ],
         "title": "Body_analyze_garment"
       },
+      "Body_create_diagnosis": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_create_diagnosis"
+      },
+      "Body_upload_media": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_media"
+      },
       "Color": {
         "type": "string",
         "enum": [
@@ -279,6 +1195,134 @@
           "white"
         ],
         "title": "Color"
+      },
+      "Damage": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/DamageKind"
+          },
+          "location": {
+            "type": "string",
+            "title": "Location"
+          },
+          "size_cm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Cm"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/Severity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "location",
+          "severity"
+        ],
+        "title": "Damage"
+      },
+      "DamageKind": {
+        "type": "string",
+        "enum": [
+          "hole",
+          "tear",
+          "stain",
+          "pilling",
+          "fraying",
+          "split_seam",
+          "snag",
+          "worn_thin"
+        ],
+        "title": "DamageKind"
+      },
+      "DiagnosisOut": {
+        "properties": {
+          "garment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GarmentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "garment_confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Garment Confidence",
+            "default": 0
+          },
+          "material": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Material"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "material_confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Material Confidence",
+            "default": 0
+          },
+          "damages": {
+            "items": {
+              "$ref": "#/components/schemas/Damage"
+            },
+            "type": "array",
+            "title": "Damages"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/RepairOption"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes",
+            "default": ""
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "photo_url": {
+            "type": "string",
+            "title": "Photo Url"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "garment",
+          "material",
+          "damages",
+          "options",
+          "id",
+          "photo_url",
+          "created_at"
+        ],
+        "title": "DiagnosisOut"
       },
       "GarmentDetection": {
         "properties": {
@@ -455,6 +1499,664 @@
         ],
         "title": "MaterialDetection"
       },
+      "Me": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "is_guest": {
+            "type": "boolean",
+            "title": "Is Guest"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProfileOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "is_guest",
+          "profile"
+        ],
+        "title": "Me"
+      },
+      "MediaOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "url",
+          "width",
+          "height"
+        ],
+        "title": "MediaOut"
+      },
+      "PostCreate": {
+        "properties": {
+          "caption": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Caption",
+            "default": ""
+          },
+          "technique": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Technique"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Tags",
+            "default": []
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/PostMediaIn"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "minItems": 1,
+            "title": "Media"
+          }
+        },
+        "type": "object",
+        "required": [
+          "media"
+        ],
+        "title": "PostCreate"
+      },
+      "PostMediaIn": {
+        "properties": {
+          "media_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Media Id"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "before",
+              "after",
+              "gallery"
+            ],
+            "title": "Role",
+            "default": "gallery"
+          }
+        },
+        "type": "object",
+        "required": [
+          "media_id"
+        ],
+        "title": "PostMediaIn"
+      },
+      "PostMediaOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "before",
+              "after",
+              "gallery"
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "url",
+          "width",
+          "height",
+          "role"
+        ],
+        "title": "PostMediaOut"
+      },
+      "PostOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "author": {
+            "$ref": "#/components/schemas/ProfileSummary"
+          },
+          "caption": {
+            "type": "string",
+            "title": "Caption"
+          },
+          "technique": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Technique"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/PostMediaOut"
+            },
+            "type": "array",
+            "title": "Media"
+          },
+          "like_count": {
+            "type": "integer",
+            "title": "Like Count"
+          },
+          "liked_by_me": {
+            "type": "boolean",
+            "title": "Liked By Me"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "author",
+          "caption",
+          "technique",
+          "tags",
+          "media",
+          "like_count",
+          "liked_by_me",
+          "project_id",
+          "created_at"
+        ],
+        "title": "PostOut"
+      },
+      "PostPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PostOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "PostPage"
+      },
+      "ProfileIn": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Display Name"
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 160,
+            "title": "Bio",
+            "default": ""
+          },
+          "techniques": {
+            "items": {
+              "$ref": "#/components/schemas/Technique"
+            },
+            "type": "array",
+            "title": "Techniques",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "display_name"
+        ],
+        "title": "ProfileIn"
+      },
+      "ProfileOut": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "bio": {
+            "type": "string",
+            "title": "Bio"
+          },
+          "techniques": {
+            "items": {
+              "$ref": "#/components/schemas/Technique"
+            },
+            "type": "array",
+            "title": "Techniques"
+          },
+          "post_count": {
+            "type": "integer",
+            "title": "Post Count"
+          },
+          "is_me": {
+            "type": "boolean",
+            "title": "Is Me"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "display_name",
+          "bio",
+          "techniques",
+          "post_count",
+          "is_me",
+          "created_at"
+        ],
+        "title": "ProfileOut"
+      },
+      "ProfileSummary": {
+        "properties": {
+          "handle": {
+            "type": "string",
+            "title": "Handle"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "handle",
+          "display_name"
+        ],
+        "title": "ProfileSummary"
+      },
+      "ProjectCreate": {
+        "properties": {
+          "diagnosis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Diagnosis Id"
+          },
+          "option_id": {
+            "type": "string",
+            "title": "Option Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "diagnosis_id",
+          "option_id"
+        ],
+        "title": "ProjectCreate"
+      },
+      "ProjectOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus"
+          },
+          "garment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GarmentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "material": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Material"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "technique": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Technique"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan": {
+            "$ref": "#/components/schemas/RepairOption"
+          },
+          "steps_done": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Steps Done"
+          },
+          "before_photo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MediaOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "updates": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectUpdateOut"
+            },
+            "type": "array",
+            "title": "Updates"
+          },
+          "post_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Post Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "status",
+          "garment",
+          "material",
+          "technique",
+          "plan",
+          "steps_done",
+          "before_photo",
+          "updates",
+          "post_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ProjectOut"
+      },
+      "ProjectPatch": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "steps_done": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steps Done"
+          }
+        },
+        "type": "object",
+        "title": "ProjectPatch"
+      },
+      "ProjectStatus": {
+        "type": "string",
+        "enum": [
+          "planning",
+          "in_progress",
+          "done"
+        ],
+        "title": "ProjectStatus"
+      },
+      "ProjectUpdateIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "progress",
+              "after"
+            ],
+            "title": "Kind"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Note",
+            "default": ""
+          },
+          "media_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "ProjectUpdateIn"
+      },
+      "ProjectUpdateOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "progress",
+              "after"
+            ],
+            "title": "Kind"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          },
+          "photo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MediaOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "note",
+          "photo",
+          "created_at"
+        ],
+        "title": "ProjectUpdateOut"
+      },
+      "PublishProject": {
+        "properties": {
+          "caption": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Caption",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "PublishProject"
+      },
       "RepairGuide": {
         "properties": {
           "material": {
@@ -497,6 +2199,86 @@
           "url"
         ],
         "title": "RepairLink"
+      },
+      "RepairOption": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "technique": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Technique"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "invisible",
+              "visible"
+            ],
+            "title": "Visibility"
+          },
+          "difficulty": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Difficulty"
+          },
+          "minutes": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Minutes"
+          },
+          "materials": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Materials"
+          },
+          "steps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Steps"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "summary",
+          "visibility",
+          "difficulty",
+          "minutes",
+          "materials",
+          "steps"
+        ],
+        "title": "RepairOption"
+      },
+      "Severity": {
+        "type": "string",
+        "enum": [
+          "minor",
+          "moderate",
+          "severe"
+        ],
+        "title": "Severity"
       },
       "Technique": {
         "type": "string",
@@ -546,6 +2328,12 @@
           "type"
         ],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }
