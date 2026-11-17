@@ -1,0 +1,10 @@
+// Cloudflare Workers static hosting for the web build (free plan).
+// Build with production EXPO_PUBLIC_* values, then: npx wrangler deploy
+{
+  "name": "fixknit",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

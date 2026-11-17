@@ -33,7 +33,8 @@
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "wrangler": "^4.164.0"
   },
   "scripts": {
     "start": "expo start",
@@ -42,7 +43,10 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "build:web": "expo export --platform web",
-    "gen:api": "npx --yes openapi-typescript@7.13.0 ../../frontend/openapi.json -o src/api/schema.ts --enum-values --root-types --root-types-no-schema-prefix"
+    "gen:api": "npx --yes openapi-typescript@7.13.0 ../../frontend/openapi.json -o src/api/schema.ts --enum-values --root-types --root-types-no-schema-prefix",
+    "deploy": "npx expo export -p web && wrangler deploy",
+    "preview": "npx expo export -p web && wrangler dev",
+    "deploy:web": "EXPO_PUBLIC_API_URL=https://fixknit-api.onrender.com EXPO_PUBLIC_SUPABASE_URL=https://booosqcfxuykutrtqfrq.supabase.co EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_TDuygNFaUySb-2zCEz3A_A_4roGQLJu expo export --platform web --clear && npx wrangler deploy"
   },
   "private": true
 }
