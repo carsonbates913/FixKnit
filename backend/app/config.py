@@ -1,5 +1,6 @@
 from typing import Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ProviderKind = Literal["google", "fake"]
@@ -45,3 +46,12 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["*"]
     max_upload_bytes: int = 10 * 1024 * 1024
     max_image_dimension: int = 2048
+
+    @field_validator("database_url")
+    @classmethod
+    def _use_asyncpg(cls, url: str) -> str:
+        """Accept connection strings as Supabase prints them (postgresql://…)."""
+        for prefix in ("postgresql://", "postgres://"):
+            if url.startswith(prefix):
+                return "postgresql+asyncpg://" + url[len(prefix) :]
+        return url

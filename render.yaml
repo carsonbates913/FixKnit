@@ -1,0 +1,33 @@
+# Render Blueprint for the FixKnit API (free plan). Render → New → Blueprint → this repo.
+# Secrets marked `sync: false` are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: fixknit-api
+    runtime: docker
+    plan: free
+    region: oregon # same region as the Supabase project (us-west-2)
+    branch: app/phase-1
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: ADVISOR_PROVIDER
+        value: claude
+      - key: ADVISOR_MODEL
+        value: claude-sonnet-5-5
+      # Legacy Google-backed endpoints aren't used by the mobile app.
+      - key: VISION_PROVIDER
+        value: fake
+      - key: INSPIRATION_PROVIDER
+        value: fake
+      - key: SUPABASE_URL
+        value: https://booosqcfxuykutrtqfrq.supabase.co
+      # Supabase → Connect → "Session pooler" URI, with your database password filled in.
+      - key: DATABASE_URL
+        sync: false
+      # Supabase → Project Settings → API Keys → secret key (sb_secret_…).
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
