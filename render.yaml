@@ -6,7 +6,7 @@ services:
     runtime: docker
     plan: free
     region: oregon # same region as the Supabase project (us-west-2)
-    branch: app/phase-1
+    branch: main
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     healthCheckPath: /api/health
