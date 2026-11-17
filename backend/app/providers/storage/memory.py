@@ -1,3 +1,6 @@
+from app.providers.errors import ProviderError
+
+
 class MemoryMediaStore:
     """Keeps uploads in memory; for tests."""
 
@@ -6,6 +9,12 @@ class MemoryMediaStore:
 
     async def put(self, path: str, data: bytes, content_type: str) -> None:
         self.objects[path] = data
+
+    async def get(self, path: str) -> bytes:
+        try:
+            return self.objects[path]
+        except KeyError:
+            raise ProviderError("Photo not found") from None
 
     def public_url(self, path: str) -> str:
         return f"memory://{path}"

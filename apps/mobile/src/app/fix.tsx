@@ -1,7 +1,7 @@
 import { Image } from 'expo-image'
 import { router } from 'expo-router'
-import { AlertTriangle, RotateCcw } from 'lucide-react-native'
-import { useState } from 'react'
+import { AlertTriangle, Camera, CircleCheck, RotateCcw, Shirt, type LucideIcon } from 'lucide-react-native'
+import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { useDiagnose, useStartProject } from '@/api/hooks'
@@ -44,7 +44,13 @@ export default function Fix() {
     setPreview(null)
   }
 
-  if (diagnose.data) return <DiagnosisView diagnosis={diagnose.data} onRetake={reset} />
+  if (diagnose.data) {
+    return diagnose.data.outcome === 'repairable' ? (
+      <DiagnosisView diagnosis={diagnose.data} onRetake={reset} />
+    ) : (
+      <RetakeView diagnosis={diagnose.data} onPick={pick} />
+    )
+  }
 
   return (
     <Screen edges={['bottom']}>
@@ -62,7 +68,7 @@ export default function Fix() {
 
       {diagnose.isPending ? (
         <FadeInView style={{ gap: 14 }}>
-          <Text variant="label" center>Analysing your garment…</Text>
+          <AnalysingStatus />
           <DiagnosisSkeleton />
         </FadeInView>
       ) : (
@@ -130,6 +136,63 @@ function DiagnosisView({ diagnosis, onRetake }: { diagnosis: DiagnosisOut; onRet
   )
 }
 
+const ANALYSING = ['Looking at your photo…', 'Identifying the fabric…', 'Sizing up the damage…', 'Drafting repair plans…']
+
+/** Cycles through what the assistant is doing, so a few seconds' wait feels like progress. */
+function AnalysingStatus() {
+  const [step, setStep] = useState(0)
+  useEffect(() => {
+    const timer = setInterval(() => setStep((s) => Math.min(s + 1, ANALYSING.length - 1)), 2400)
+    return () => clearInterval(timer)
+  }, [])
+  return (
+    <FadeInView key={step}>
+      <Text variant="label" center accessibilityLiveRegion="polite">{ANALYSING[step]}</Text>
+    </FadeInView>
+  )
+}
+
+const RETAKE: Record<Exclude<DiagnosisOut['outcome'], 'repairable'>, { icon: LucideIcon; title: string; tips: boolean }> = {
+  no_damage: { icon: CircleCheck, title: 'No damage spotted', tips: false },
+  not_garment: { icon: Shirt, title: 'That doesn’t look like clothing', tips: true },
+  unclear: { icon: Camera, title: 'Let’s get a clearer look', tips: true },
+}
+
+const TIPS = ['Lay the garment flat in daylight', 'Get close: the damage should fill a third of the frame', 'Hold steady so the weave is sharp']
+
+/** The assistant couldn't plan a repair from this photo: say why, and make retaking one tap. */
+function RetakeView({ diagnosis, onPick }: { diagnosis: DiagnosisOut; onPick: (source: PhotoSource) => void }) {
+  const { colors } = useTheme()
+  const copy = RETAKE[diagnosis.outcome as keyof typeof RETAKE]
+  const Icon = copy.icon
+  return (
+    <Screen edges={['bottom']}>
+      <Image source={{ uri: mediaUrl(diagnosis.photo_url) }} style={[styles.preview, { opacity: 0.85 }]} contentFit="cover" />
+      <Appear style={[styles.report, { borderColor: colors.line, backgroundColor: colors.surface }]}>
+        <View style={[styles.retakeIcon, { backgroundColor: diagnosis.outcome === 'no_damage' ? colors.primarySoft : colors.signalSoft }]}>
+          <Icon size={22} color={diagnosis.outcome === 'no_damage' ? colors.primary : colors.signal} strokeWidth={2} />
+        </View>
+        <Text variant="h2">{copy.title}</Text>
+        {diagnosis.notes ? <Text variant="body" tone="muted">{diagnosis.notes}</Text> : null}
+        {copy.tips && (
+          <View style={{ gap: 8, marginTop: 4 }}>
+            {TIPS.map((tip) => (
+              <View key={tip} style={styles.tip}>
+                <View style={[styles.dot, { backgroundColor: colors.primary }]} />
+                <Text variant="small" style={{ flex: 1 }}>{tip}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+      </Appear>
+      <Appear index={1} style={{ gap: 10 }}>
+        <Text variant="label">{diagnosis.outcome === 'no_damage' ? 'Something else to fix?' : 'Try another photo'}</Text>
+        <PhotoSourceButtons onPick={onPick} />
+      </Appear>
+    </Screen>
+  )
+}
+
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
@@ -143,4 +206,7 @@ const styles = StyleSheet.create({
   preview: { width: '100%', aspectRatio: 4 / 3, borderRadius: radius.lg },
   art: { width: '100%', aspectRatio: 4 / 3 },
   report: { borderWidth: 1, borderRadius: radius.lg, padding: 16, gap: 12 },
+  retakeIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  tip: { flexDirection: 'row', gap: 10, alignItems: 'center' },
+  dot: { width: 6, height: 6, borderRadius: 3 },
 })

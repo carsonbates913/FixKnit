@@ -3,6 +3,7 @@
 import hashlib
 
 from app.domain.taxonomy import GarmentType, Material, Technique
+from app.providers.advisor.base import ChatTurn, ProjectBrief
 from app.schemas.diagnosis import Damage, DamageKind, DiagnosisResult, RepairOption, Severity
 
 DEMO_NOTE = (
@@ -220,6 +221,12 @@ class FakeRepairAdvisor:
     async def diagnose(self, image: bytes) -> DiagnosisResult:
         scenario = SCENARIOS[hashlib.sha256(image).digest()[0] % len(SCENARIOS)]
         return scenario.model_copy(update={"notes": DEMO_NOTE})
+
+    async def reply(self, brief: ProjectBrief, history: list[ChatTurn]) -> str:
+        return (
+            "Demo reply: the AI model isn’t connected yet. Once it is, I’ll answer questions "
+            f"like “{history[-1].body[:80]}” using your plan and photos."
+        )
 
     async def aclose(self) -> None:
         pass

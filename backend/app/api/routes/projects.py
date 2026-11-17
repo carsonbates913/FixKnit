@@ -1,13 +1,15 @@
 import uuid
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
-from app.api.deps import MediaStoreDep
+from app.api.deps import AdvisorDep, MediaStoreDep, SettingsDep
 from app.auth import CurrentProfile
 from app.db import SessionDep
-from app.models import Diagnosis, Post, PostMedia, Project, ProjectUpdate
-from app.schemas.diagnosis import DiagnosisResult
+from app.models import Diagnosis, Post, PostMedia, Project, ProjectMessage, ProjectUpdate
+from app.providers.advisor import ChatTurn
+from app.schemas.diagnosis import ChatMessageIn, ChatMessageOut, ChatRole, DiagnosisResult
 from app.schemas.social import (
     PostOut,
     ProjectCreate,
@@ -17,6 +19,7 @@ from app.schemas.social import (
     ProjectUpdateIn,
     PublishProject,
 )
+from app.services.assistant import check_chat_limit, project_brief
 from app.services.media import owned_media
 from app.services.posts import serialize_posts
 from app.services.projects import project_out
@@ -181,3 +184,77 @@ async def publish_project(
     fresh = await session.get(Post, post_id, populate_existing=True)
     assert fresh is not None
     return (await serialize_posts(session, [fresh], profile.id, store.public_url))[0]
+
+
+# The assistant sees this many earlier messages; older ones stay in the app but drop out of context.
+CHAT_HISTORY = 20
+
+
+def _message_out(m: ProjectMessage) -> ChatMessageOut:
+    return ChatMessageOut(id=m.id, role=ChatRole(m.role), body=m.body, created_at=m.created_at)
+
+
+async def _messages(session: SessionDep, project_id: uuid.UUID) -> list[ProjectMessage]:
+    rows = await session.scalars(
+        select(ProjectMessage)
+        .where(ProjectMessage.project_id == project_id)
+        .order_by(ProjectMessage.created_at, ProjectMessage.id)
+    )
+    return list(rows)
+
+
+@router.get("/{project_id}/messages")
+async def list_messages(
+    project_id: uuid.UUID, profile: CurrentProfile, session: SessionDep
+) -> list[ChatMessageOut]:
+    """The project's conversation with the repair assistant, oldest first."""
+    await _owned_project(session, project_id, profile.id)
+    return [_message_out(m) for m in await _messages(session, project_id)]
+
+
+@router.post("/{project_id}/messages", status_code=status.HTTP_201_CREATED)
+async def ask_assistant(
+    project_id: uuid.UUID,
+    body: ChatMessageIn,
+    profile: CurrentProfile,
+    session: SessionDep,
+    store: MediaStoreDep,
+    advisor: AdvisorDep,
+    settings: SettingsDep,
+) -> list[ChatMessageOut]:
+    """Ask the repair assistant about this project. Returns the question and its answer.
+
+    Nothing is saved if the assistant fails, so the client can simply retry.
+    """
+    project = await _owned_project(session, project_id, profile.id)
+    await check_chat_limit(session, profile.id, settings.chat_messages_per_hour)
+    question = body.body.strip()
+    history = [ChatTurn(ChatRole(m.role), m.body) for m in await _messages(session, project.id)]
+    history = history[-CHAT_HISTORY:]
+    if history and history[0].role == ChatRole.ASSISTANT:
+        history = history[1:]
+    history.append(ChatTurn(ChatRole.USER, question))
+
+    answer = await advisor.reply(await project_brief(session, project, store), history)
+
+    # Postgres's now() is fixed for the whole transaction, so order the pair explicitly.
+    asked_at = datetime.now(UTC)
+    pair = [
+        ProjectMessage(
+            id=uuid.uuid4(),
+            project_id=project.id,
+            role=ChatRole.USER,
+            body=question,
+            created_at=asked_at,
+        ),
+        ProjectMessage(
+            id=uuid.uuid4(),
+            project_id=project.id,
+            role=ChatRole.ASSISTANT,
+            body=answer[:8000],
+            created_at=asked_at + timedelta(milliseconds=1),
+        ),
+    ]
+    session.add_all(pair)
+    await session.commit()
+    return [_message_out(m) for m in pair]

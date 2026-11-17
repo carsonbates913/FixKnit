@@ -185,6 +185,8 @@ export interface paths {
         /**
          * Create Diagnosis
          * @description Photograph a damaged garment: identify it, find the damage and propose repair options.
+         *
+         *     If the photo isn't a damaged garment, `outcome` says why and `notes` says what to retake.
          */
         post: operations["create_diagnosis"];
         delete?: never;
@@ -289,6 +291,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{project_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Messages
+         * @description The project's conversation with the repair assistant, oldest first.
+         */
+        get: operations["list_messages"];
+        put?: never;
+        /**
+         * Ask Assistant
+         * @description Ask the repair assistant about this project. Returns the question and its answer.
+         *
+         *     Nothing is saved if the assistant fails, so the client can simply retry.
+         */
+        post: operations["ask_assistant"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/posts": {
         parameters: {
             query?: never;
@@ -379,6 +407,32 @@ export interface components {
             /** File */
             file: string;
         };
+        /** ChatMessageIn */
+        ChatMessageIn: {
+            /** Body */
+            body: string;
+        };
+        /** ChatMessageOut */
+        ChatMessageOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            role: components["schemas"]["ChatRole"];
+            /** Body */
+            body: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * ChatRole
+         * @enum {string}
+         */
+        ChatRole: "user" | "assistant";
         /**
          * Color
          * @enum {string}
@@ -400,6 +454,8 @@ export interface components {
         DamageKind: "hole" | "tear" | "stain" | "pilling" | "fraying" | "split_seam" | "snag" | "worn_thin";
         /** DiagnosisOut */
         DiagnosisOut: {
+            /** @default repairable */
+            outcome: components["schemas"]["Outcome"];
             garment: components["schemas"]["GarmentType"] | null;
             /**
              * Garment Confidence
@@ -522,6 +578,12 @@ export interface components {
             /** Height */
             height: number;
         };
+        /**
+         * Outcome
+         * @description Whether the photo shows something the assistant can plan a repair for.
+         * @enum {string}
+         */
+        Outcome: "repairable" | "no_damage" | "not_garment" | "unclear";
         /** PostCreate */
         PostCreate: {
             /**
@@ -825,6 +887,9 @@ export type AnalysisResult = components['schemas']['AnalysisResult'];
 export type BodyAnalyzeGarment = components['schemas']['Body_analyze_garment'];
 export type BodyCreateDiagnosis = components['schemas']['Body_create_diagnosis'];
 export type BodyUploadMedia = components['schemas']['Body_upload_media'];
+export type ChatMessageIn = components['schemas']['ChatMessageIn'];
+export type ChatMessageOut = components['schemas']['ChatMessageOut'];
+export type ChatRole = components['schemas']['ChatRole'];
 export type Color = components['schemas']['Color'];
 export type Damage = components['schemas']['Damage'];
 export type DamageKind = components['schemas']['DamageKind'];
@@ -840,6 +905,7 @@ export type Material = components['schemas']['Material'];
 export type MaterialDetection = components['schemas']['MaterialDetection'];
 export type Me = components['schemas']['Me'];
 export type MediaOut = components['schemas']['MediaOut'];
+export type Outcome = components['schemas']['Outcome'];
 export type PostCreate = components['schemas']['PostCreate'];
 export type PostMediaIn = components['schemas']['PostMediaIn'];
 export type PostMediaOut = components['schemas']['PostMediaOut'];
@@ -1389,6 +1455,72 @@ export interface operations {
             };
         };
     };
+    list_messages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatMessageOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ask_assistant: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatMessageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatMessageOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_posts: {
         parameters: {
             query?: {
@@ -1583,10 +1715,12 @@ type ReadonlyArray<T> = [
 ] extends [
     unknown[]
 ] ? Readonly<Exclude<T, undefined>> : Readonly<Exclude<T, undefined>[]>;
+export const chatRoleValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["ChatRole"]> = ["user", "assistant"];
 export const colorValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["Color"]> = ["red", "orange", "yellow", "green", "blue", "pink", "purple", "brown", "black", "white"];
 export const damageKindValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["DamageKind"]> = ["hole", "tear", "stain", "pilling", "fraying", "split_seam", "snag", "worn_thin"];
 export const garmentTypeValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["GarmentType"]> = ["pants", "sweater", "shirt", "jacket", "coat", "dress", "skirt", "scarf", "hat", "gloves", "shoes"];
 export const materialValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["Material"]> = ["denim", "wool", "cotton", "silk", "leather", "linen", "polyester", "nylon"];
+export const outcomeValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["Outcome"]> = ["repairable", "no_damage", "not_garment", "unclear"];
 export const postMediaInRoleValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["PostMediaIn"]["role"]> = ["before", "after", "gallery"];
 export const postMediaOutRoleValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["PostMediaOut"]["role"]> = ["before", "after", "gallery"];
 export const projectStatusValues: ReadonlyArray<FlattenedDeepRequired<components>["schemas"]["ProjectStatus"]> = ["planning", "in_progress", "done"];

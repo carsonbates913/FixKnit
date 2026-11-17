@@ -7,6 +7,7 @@ from app.auth import CurrentProfile
 from app.db import SessionDep
 from app.models import Diagnosis
 from app.schemas.diagnosis import DiagnosisOut, DiagnosisResult
+from app.services.assistant import check_diagnosis_limit
 from app.services.media import UrlFor, store_upload
 
 router = APIRouter(prefix="/diagnoses", tags=["diagnoses"])
@@ -30,7 +31,11 @@ async def create_diagnosis(
     store: MediaStoreDep,
     session: SessionDep,
 ) -> DiagnosisOut:
-    """Photograph a damaged garment: identify it, find the damage and propose repair options."""
+    """Photograph a damaged garment: identify it, find the damage and propose repair options.
+
+    If the photo isn't a damaged garment, `outcome` says why and `notes` says what to retake.
+    """
+    await check_diagnosis_limit(session, profile.id, settings.diagnoses_per_hour)
     media, image = await store_upload(file, profile.id, settings, store, session)
     result = await advisor.diagnose(image.data)
     diagnosis = Diagnosis(owner_id=profile.id, media=media, result=result.model_dump(mode="json"))

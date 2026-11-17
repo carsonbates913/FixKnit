@@ -70,8 +70,28 @@ make mobile   # Expo dev server
   The app finds the API and Supabase on the same host automatically.
 - **Expo Go:** scan the QR code in the terminal.
 
-The repair assistant currently uses a **fake advisor** with three sample diagnoses (`ADVISOR_PROVIDER=fake`);
-the AI model plugs into `backend/app/providers/advisor/`.
+### Repair assistant (AI)
+
+`ADVISOR_PROVIDER=claude` uses Claude to diagnose photos and answer questions in each project's chat;
+`fake` (the default, and what tests use) returns three sample diagnoses and canned replies.
+
+- **Diagnosis:** one forced tool call returns the garment, material, damage and 2–3 repair plans, validated
+  against the same Pydantic schema the API serves. Photos that aren't a damaged garment come back with an
+  `outcome` (`no_damage`, `not_garment`, `unclear`) and a retake tip instead of an invented repair.
+- **Project chat:** each question is sent with the plan, which steps are done, the user's notes, and the
+  before and latest photos.
+- **Limits:** `DIAGNOSES_PER_HOUR` and `CHAT_MESSAGES_PER_HOUR` cap each user, so a public demo can't run
+  up the bill.
+
+It works with Anthropic directly or any gateway that speaks the Messages API, such as Dartmouth Chat:
+
+```sh
+# backend/.env (never committed)
+ADVISOR_PROVIDER=claude
+ANTHROPIC_API_KEY=...                            # Anthropic key, or your Dartmouth Chat API key
+ANTHROPIC_BASE_URL=https://chat.dartmouth.edu/api # omit for Anthropic directly
+ADVISOR_MODEL=anthropic.claude-sonnet-4-6         # Dartmouth's id; Anthropic's is claude-sonnet-5-5
+```
 
 ## Getting started
 

@@ -36,6 +36,13 @@ class SupabaseMediaStore:
             )
             raise ProviderError(f"Couldn't store the photo (HTTP {response.status_code})")
 
+    async def get(self, path: str) -> bytes:
+        response = await self._client.get(f"/object/{self._bucket}/{path}")
+        if response.is_error:
+            logger.warning("Storage read failed %s: %s", response.status_code, response.text[:300])
+            raise ProviderError(f"Couldn't read the photo (HTTP {response.status_code})")
+        return response.content
+
     def public_url(self, path: str) -> str:
         return f"{self._public_base}/{path}"
 

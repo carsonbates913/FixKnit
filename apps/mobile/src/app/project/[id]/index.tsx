@@ -1,6 +1,6 @@
 import { Image } from 'expo-image'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { Check, Share2 } from 'lucide-react-native'
+import { Check, ChevronRight, Share2 } from 'lucide-react-native'
 import { useEffect, useState } from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring } from 'react-native-reanimated'
 import { Pressable, StyleSheet, View } from 'react-native'
@@ -15,7 +15,7 @@ import { Notice } from '@/components/Notice'
 import { PhotoSourceButtons } from '@/components/PhotoSourceButtons'
 import { Screen } from '@/components/Screen'
 import { Eyebrow, Text } from '@/components/Text'
-import { Appear } from '@/components/Motion'
+import { Appear, PressScale } from '@/components/Motion'
 import { ProjectSkeleton } from '@/components/Skeleton'
 import { YarnLoader } from '@/components/YarnLoader'
 import { mediaUrl } from '@/lib/env'
@@ -25,6 +25,8 @@ import { PROJECT_STATUS } from '@/lib/status'
 import { popSpring } from '@/theme/motion'
 import { useTheme } from '@/theme/ThemeProvider'
 import { radius } from '@/theme/tokens'
+
+const yarn = require('../../../../assets/green-yarn.webp')
 
 export default function ProjectScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -138,6 +140,26 @@ function ProjectView({ project }: { project: ProjectOut }) {
         </Text>
       </Appear>
 
+      <Appear index={2}>
+        <PressScale
+          accessibilityRole="button"
+          haptic
+          onPress={() => router.push(`/project/${project.id}/chat`)}
+          style={[styles.assistant, { borderColor: colors.line, backgroundColor: colors.surface }]}
+        >
+          <View style={[styles.assistantIcon, { backgroundColor: colors.primarySoft }]}>
+            <Image source={yarn} style={{ width: 30, height: 30 }} contentFit="contain" />
+          </View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text variant="title">Ask the repair assistant</Text>
+            <Text variant="small" tone="muted">
+              Stuck on a step? Ask about yarn, stitches or your progress photos.
+            </Text>
+          </View>
+          <ChevronRight size={20} color={colors.muted} />
+        </PressScale>
+      </Appear>
+
       {project.updates.length > 0 && (
         <View style={{ gap: 10 }}>
           <Text variant="label">Timeline</Text>
@@ -243,4 +265,6 @@ const styles = StyleSheet.create({
   },
   update: { flexDirection: 'row', gap: 12, borderWidth: 1, borderRadius: radius.md, padding: 10, alignItems: 'center' },
   thumb: { width: 56, height: 56, borderRadius: radius.sm },
+  assistant: { flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1, borderRadius: radius.lg, padding: 14 },
+  assistantIcon: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
 })

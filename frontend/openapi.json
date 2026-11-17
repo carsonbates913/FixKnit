@@ -398,7 +398,7 @@
           "diagnoses"
         ],
         "summary": "Create Diagnosis",
-        "description": "Photograph a damaged garment: identify it, find the damage and propose repair options.",
+        "description": "Photograph a damaged garment: identify it, find the damage and propose repair options.\n\nIf the photo isn't a damaged garment, `outcome` says why and `notes` says what to retake.",
         "operationId": "create_diagnosis",
         "requestBody": {
           "content": {
@@ -767,6 +767,120 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PostOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{project_id}/messages": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "List Messages",
+        "description": "The project's conversation with the repair assistant, oldest first.",
+        "operationId": "list_messages",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatMessageOut"
+                  },
+                  "title": "Response List Messages"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Ask Assistant",
+        "description": "Ask the repair assistant about this project. Returns the question and its answer.\n\nNothing is saved if the assistant fails, so the client can simply retry.",
+        "operationId": "ask_assistant",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatMessageIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatMessageOut"
+                  },
+                  "title": "Response Ask Assistant"
                 }
               }
             }
@@ -1180,6 +1294,58 @@
         ],
         "title": "Body_upload_media"
       },
+      "ChatMessageIn": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Body"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "title": "ChatMessageIn"
+      },
+      "ChatMessageOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "role": {
+            "$ref": "#/components/schemas/ChatRole"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "body",
+          "created_at"
+        ],
+        "title": "ChatMessageOut"
+      },
+      "ChatRole": {
+        "type": "string",
+        "enum": [
+          "user",
+          "assistant"
+        ],
+        "title": "ChatRole"
+      },
       "Color": {
         "type": "string",
         "enum": [
@@ -1244,6 +1410,10 @@
       },
       "DiagnosisOut": {
         "properties": {
+          "outcome": {
+            "$ref": "#/components/schemas/Outcome",
+            "default": "repairable"
+          },
           "garment": {
             "anyOf": [
               {
@@ -1557,6 +1727,17 @@
           "height"
         ],
         "title": "MediaOut"
+      },
+      "Outcome": {
+        "type": "string",
+        "enum": [
+          "repairable",
+          "no_damage",
+          "not_garment",
+          "unclear"
+        ],
+        "title": "Outcome",
+        "description": "Whether the photo shows something the assistant can plan a repair for."
       },
       "PostCreate": {
         "properties": {

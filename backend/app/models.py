@@ -106,6 +106,20 @@ class ProjectUpdate(Base):
     media: Mapped[Media | None] = relationship(lazy="joined")
 
 
+class ProjectMessage(Base):
+    """One turn of a project's conversation with the repair assistant."""
+
+    __tablename__ = "project_messages"
+
+    id: Mapped[uuid.UUID] = _uuid()
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("projects.id", ondelete="CASCADE"), index=True
+    )
+    role: Mapped[str] = mapped_column(String(16))
+    body: Mapped[str] = mapped_column(String(8000))
+    created_at: Mapped[datetime] = _created()
+
+
 class Post(Base):
     __tablename__ = "posts"
 

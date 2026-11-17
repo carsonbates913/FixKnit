@@ -6,6 +6,7 @@ import { photoFormData } from '@/lib/upload'
 import { api, unwrap } from './client'
 import type {
   BodyCreateDiagnosis,
+  ChatMessageOut,
   BodyUploadMedia,
   PostCreate,
   PostOut,
@@ -23,6 +24,7 @@ export const keys = {
   profile: (handle: string) => ['profile', handle] as const,
   projects: ['projects'] as const,
   project: (id: string) => ['project', id] as const,
+  messages: (projectId: string) => ['project', projectId, 'messages'] as const,
 }
 
 // ---------------------------------------------------------------- profile
@@ -158,4 +160,24 @@ export function useUpdateProject(id: string) {
       },
     }),
   }
+}
+
+// ---------------------------------------------------------------- repair assistant chat
+export function useProjectMessages(projectId: string) {
+  return useQuery({
+    queryKey: keys.messages(projectId),
+    queryFn: () => unwrap(api.GET('/api/projects/{project_id}/messages', { params: { path: { project_id: projectId } } })),
+  })
+}
+
+/** Ask the assistant about a project. The question and answer are saved together, so a failure leaves nothing behind. */
+export function useAskAssistant(projectId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: string) =>
+      unwrap(api.POST('/api/projects/{project_id}/messages', { params: { path: { project_id: projectId } }, body: { body } })),
+    onSuccess: (pair) => {
+      qc.setQueryData<ChatMessageOut[]>(keys.messages(projectId), (old) => [...(old ?? []), ...pair])
+    },
+  })
 }

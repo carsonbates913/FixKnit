@@ -111,7 +111,8 @@ function Navigator() {
           <Stack.Screen name="fix" options={{ title: 'Fix something' }} />
           <Stack.Screen name="post/new" options={{ title: 'Post a creation' }} />
           <Stack.Screen name="post/[id]" options={{ title: 'Post' }} />
-          <Stack.Screen name="project/[id]" options={{ title: 'Project' }} />
+          <Stack.Screen name="project/[id]/index" options={{ title: 'Project' }} />
+          <Stack.Screen name="project/[id]/chat" options={{ title: 'Ask FixKnit' }} />
           <Stack.Screen name="u/[handle]" options={{ title: '' }} />
           <Stack.Screen name="settings" options={{ title: 'Settings' }} />
         </Stack.Protected>

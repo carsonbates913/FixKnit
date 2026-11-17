@@ -27,6 +27,15 @@ class Severity(StrEnum):
     SEVERE = "severe"
 
 
+class Outcome(StrEnum):
+    """Whether the photo shows something the assistant can plan a repair for."""
+
+    REPAIRABLE = "repairable"
+    NO_DAMAGE = "no_damage"
+    NOT_GARMENT = "not_garment"
+    UNCLEAR = "unclear"
+
+
 class Damage(BaseModel):
     kind: DamageKind
     location: str
@@ -47,16 +56,34 @@ class RepairOption(BaseModel):
 
 
 class DiagnosisResult(BaseModel):
+    outcome: Outcome = Outcome.REPAIRABLE
     garment: GarmentType | None
     garment_confidence: Annotated[float, Field(ge=0, le=1)] = 0
     material: Material | None
     material_confidence: Annotated[float, Field(ge=0, le=1)] = 0
     damages: list[Damage]
     options: list[RepairOption]
+    # Anything the user should know. When the outcome isn't repairable, what to photograph instead.
     notes: str = ""
 
 
 class DiagnosisOut(DiagnosisResult):
     id: uuid.UUID
     photo_url: str
+    created_at: datetime
+
+
+class ChatRole(StrEnum):
+    USER = "user"
+    ASSISTANT = "assistant"
+
+
+class ChatMessageIn(BaseModel):
+    body: Annotated[str, Field(min_length=1, max_length=2000)]
+
+
+class ChatMessageOut(BaseModel):
+    id: uuid.UUID
+    role: ChatRole
+    body: str
     created_at: datetime
