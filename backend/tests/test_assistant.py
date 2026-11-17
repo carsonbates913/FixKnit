@@ -35,21 +35,22 @@ DIAGNOSIS = {
 }
 
 
-def _message(*content: dict[str, Any]) -> dict[str, Any]:
+def _message(*content: dict[str, Any], stop_reason: str = "end_turn") -> dict[str, Any]:
     return {
         "id": "msg_1",
         "type": "message",
         "role": "assistant",
         "model": "test-model",
         "content": list(content),
-        "stop_reason": "end_turn",
+        "stop_reason": stop_reason,
         "stop_sequence": None,
         "usage": {"input_tokens": 1, "output_tokens": 1},
     }
 
 
-def _tool_use(payload: Any) -> dict[str, Any]:
-    return {"type": "tool_use", "id": "tu_1", "name": "report_diagnosis", "input": payload}
+def _json(payload: Any) -> dict[str, Any]:
+    """A structured-output reply: the JSON arrives as a text block."""
+    return {"type": "text", "text": json.dumps(payload)}
 
 
 def _advisor(
@@ -73,9 +74,9 @@ def _ok(body: dict[str, Any]) -> Callable[[httpx2.Request], httpx2.Response]:
 # --- Claude advisor ---------------------------------------------------------------------------
 
 
-async def test_claude_diagnosis_parses_forced_tool_call() -> None:
+async def test_claude_diagnosis_uses_structured_output() -> None:
     seen: list[httpx2.Request] = []
-    advisor = _advisor(_ok(_message(_tool_use(DIAGNOSIS))), seen)
+    advisor = _advisor(_ok(_message(_json(DIAGNOSIS))), seen)
 
     result = await advisor.diagnose(make_image("JPEG"))
 
@@ -83,14 +84,19 @@ async def test_claude_diagnosis_parses_forced_tool_call() -> None:
     assert [o.id for o in result.options] == ["option-1", "option-2"]
     sent = json.loads(seen[0].content)
     assert sent["model"] == "test-model"
-    assert sent["tool_choice"] == {"type": "tool", "name": "report_diagnosis"}
-    assert "$ref" not in json.dumps(sent["tools"])
+    # Sonnet 5.5 rejects forced tool use, so the schema goes in output_config instead.
+    assert "tool_choice" not in sent and "tools" not in sent
+    fmt = sent["output_config"]["format"]
+    assert fmt["type"] == "json_schema"
+    schema = json.dumps(fmt["schema"])
+    assert "$ref" not in schema and "minimum" not in schema and '"id"' not in schema
+    assert fmt["schema"]["additionalProperties"] is False
     assert sent["messages"][0]["content"][0]["source"]["media_type"] == "image/jpeg"
 
 
 async def test_claude_non_repairable_outcome_drops_options() -> None:
     payload = {**DIAGNOSIS, "outcome": "not_garment", "notes": "That looks like a cat."}
-    result = await _advisor(_ok(_message(_tool_use(payload)))).diagnose(b"img")
+    result = await _advisor(_ok(_message(_json(payload)))).diagnose(b"img")
     assert result.outcome == Outcome.NOT_GARMENT
     assert result.options == [] and result.damages == []
     assert result.notes == "That looks like a cat."
@@ -98,7 +104,7 @@ async def test_claude_non_repairable_outcome_drops_options() -> None:
 
 async def test_claude_repairable_without_options_becomes_unclear() -> None:
     payload = {**DIAGNOSIS, "options": []}
-    result = await _advisor(_ok(_message(_tool_use(payload)))).diagnose(b"img")
+    result = await _advisor(_ok(_message(_json(payload)))).diagnose(b"img")
     assert result.outcome == Outcome.UNCLEAR
     assert result.notes
 
@@ -107,8 +113,9 @@ async def test_claude_repairable_without_options_becomes_unclear() -> None:
     "content",
     [
         {"type": "text", "text": "I can't help with that."},
-        _tool_use({**DIAGNOSIS, "garment": "spaceship"}),
-        _tool_use("not an object"),
+        _json({**DIAGNOSIS, "garment": "spaceship"}),
+        _json("not an object"),
+        {"type": "text", "text": '{"outcome": "repairable", "garm'},
     ],
 )
 async def test_claude_unusable_answers_raise_provider_error(content: dict[str, Any]) -> None:
@@ -126,12 +133,20 @@ async def test_claude_api_errors_are_sanitised() -> None:
         await advisor.diagnose(b"img")
     assert "sk-test" not in str(exc.value)
     assert "unavailable" in str(exc.value)
+    assert "401 authentication_error" in str(exc.value)
+
+
+@pytest.mark.parametrize("stop_reason", ["refusal", "max_tokens"])
+async def test_claude_incomplete_answers_raise_provider_error(stop_reason: str) -> None:
+    advisor = _advisor(_ok(_message(_json(DIAGNOSIS), stop_reason=stop_reason)))
+    with pytest.raises(ProviderError, match="couldn’t read that photo"):
+        await advisor.diagnose(b"img")
 
 
 async def test_gateway_gets_bearer_token() -> None:
     seen: list[httpx2.Request] = []
     advisor = _advisor(
-        _ok(_message(_tool_use(DIAGNOSIS))), seen, base_url="https://chat.example.edu/api"
+        _ok(_message(_json(DIAGNOSIS))), seen, base_url="https://chat.example.edu/api"
     )
     await advisor.diagnose(b"img")
     assert str(seen[0].url) == "https://chat.example.edu/api/v1/messages"

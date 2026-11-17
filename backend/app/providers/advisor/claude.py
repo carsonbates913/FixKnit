@@ -1,19 +1,19 @@
 """The repair assistant, backed by Claude.
 
-Works against Anthropic directly or any gateway that speaks the Messages API (for example
-Dartmouth Chat at https://chat.dartmouth.edu/api). Structured output uses a forced tool call,
-which every such gateway supports.
+Works against Anthropic directly or any gateway that speaks the Messages API. Diagnoses come
+back as structured output (`output_config.format`): current models such as Claude Sonnet 5.5
+reject forced tool calls, and a JSON schema guarantees the reply parses.
 """
 
 import base64
 import copy
+import json
 import logging
 from typing import Any
 
 import anthropic
 import httpx2
-from anthropic.types import ImageBlockParam, TextBlockParam, ToolParam
-from pydantic import ValidationError
+from anthropic.types import ImageBlockParam, TextBlockParam
 
 from app.domain.taxonomy import GarmentType, Material
 from app.providers.advisor.base import ChatTurn, ProjectBrief
@@ -23,11 +23,12 @@ from app.schemas.diagnosis import DiagnosisResult, Outcome, Severity
 logger = logging.getLogger(__name__)
 
 UNAVAILABLE = "The repair assistant is unavailable right now. Try again in a moment."
+UNREADABLE = "The repair assistant couldn’t read that photo. Try again."
 
 DIAGNOSE_SYSTEM = f"""\
 You are FixKnit's repair assistant: an expert mender who teaches people to repair their own \
-clothes at home. You look at one photo of a garment and report what you see by calling the \
-`report_diagnosis` tool exactly once.
+clothes at home. You look at one photo of a garment and report what you see as JSON matching \
+the response schema.
 
 Decide the outcome first:
 - "repairable": a garment with visible damage you can plan a home repair for.
@@ -95,18 +96,38 @@ def _inline_refs(schema: dict[str, Any]) -> dict[str, Any]:
     return resolved
 
 
-def _diagnosis_tool() -> ToolParam:
+# JSON Schema keywords structured outputs doesn't accept. Pydantic re-checks them on parse.
+_UNSUPPORTED = {
+    "minimum",
+    "maximum",
+    "exclusiveMinimum",
+    "exclusiveMaximum",
+    "multipleOf",
+    "minLength",
+    "maxLength",
+    "default",
+}
+
+
+def _strict(node: Any) -> Any:
+    """Adapt a Pydantic schema to structured outputs: every object closed and fully required."""
+    if isinstance(node, list):
+        return [_strict(v) for v in node]
+    if not isinstance(node, dict):
+        return node
+    out = {k: _strict(v) for k, v in node.items() if k not in _UNSUPPORTED}
+    if out.get("type") == "object" and "properties" in out:
+        out["additionalProperties"] = False
+        out["required"] = list(out["properties"])
+    return out
+
+
+def _diagnosis_schema() -> dict[str, Any]:
     schema = _inline_refs(copy.deepcopy(DiagnosisResult.model_json_schema()))
     # Option ids are ours to assign; the model only describes the options.
-    option = schema["properties"]["options"]["items"]
-    del option["properties"]["id"]
-    option["required"] = [r for r in option["required"] if r != "id"]
-    schema["required"] = sorted(set(schema.get("required", [])) | {"outcome", "notes"})
-    return {
-        "name": "report_diagnosis",
-        "description": "Report the garment, its damage and the ways to repair it.",
-        "input_schema": schema,
-    }
+    del schema["properties"]["options"]["items"]["properties"]["id"]
+    strict: dict[str, Any] = _strict(schema)
+    return strict
 
 
 def _image_block(data: bytes) -> ImageBlockParam:
@@ -142,14 +163,13 @@ class ClaudeRepairAdvisor:
             http_client=http_client,
         )
         self._model = model
-        self._tool = _diagnosis_tool()
+        self._schema = _diagnosis_schema()
 
     async def diagnose(self, image: bytes) -> DiagnosisResult:
         message = await self._create(
-            max_tokens=4096,
+            max_tokens=8192,
             system=DIAGNOSE_SYSTEM,
-            tools=[self._tool],
-            tool_choice={"type": "tool", "name": self._tool["name"]},
+            output_config={"format": {"type": "json_schema", "schema": self._schema}},
             messages=[
                 {
                     "role": "user",
@@ -160,13 +180,12 @@ class ClaudeRepairAdvisor:
                 }
             ],
         )
-        payload: dict[str, Any] | None = next(
-            (b.input for b in message.content if b.type == "tool_use"), None
-        )
-        if not isinstance(payload, dict):
-            logger.warning("Diagnosis had no tool call (stop_reason=%s)", message.stop_reason)
-            raise ProviderError("The repair assistant couldn’t read that photo. Try again.")
+        if message.stop_reason in ("refusal", "max_tokens"):
+            logger.warning("Diagnosis stopped early (stop_reason=%s)", message.stop_reason)
+            raise ProviderError(UNREADABLE)
+        text = "".join(b.text for b in message.content if b.type == "text")
         try:
+            payload = json.loads(text)
             result = DiagnosisResult.model_validate(
                 {
                     **payload,
@@ -176,11 +195,9 @@ class ClaudeRepairAdvisor:
                     ],
                 }
             )
-        except (ValidationError, TypeError, AttributeError) as exc:
+        except (ValueError, TypeError, AttributeError) as exc:  # ValidationError is a ValueError
             logger.warning("Diagnosis didn't match the schema: %s", exc)
-            raise ProviderError(
-                "The repair assistant couldn’t read that photo. Try again."
-            ) from None
+            raise ProviderError(UNREADABLE) from None
         return _normalize(result)
 
     async def reply(self, brief: ProjectBrief, history: list[ChatTurn]) -> str:
@@ -212,7 +229,10 @@ class ClaudeRepairAdvisor:
             raise ProviderError("The repair assistant is busy. Try again in a minute.") from None
         except anthropic.APIStatusError as exc:
             logger.warning("Claude request failed %s: %s", exc.status_code, str(exc)[:300])
-            raise ProviderError(UNAVAILABLE) from None
+            # The error type (e.g. authentication_error) names the cause without exposing anything.
+            raise ProviderError(
+                f"{UNAVAILABLE} ({exc.status_code} {exc.type or 'error'})"
+            ) from None
         except anthropic.APIConnectionError as exc:
             logger.warning("Claude request failed: %s", exc)
             raise ProviderError(UNAVAILABLE) from None
